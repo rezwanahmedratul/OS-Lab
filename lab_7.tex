@@ -147,40 +147,20 @@
 % 1. Objective
 % =========================================================
 \section{Objective}
-The objective of this lab is to explore essential command-line utility tools that improve daily productivity and system awareness in Linux. By completing this experiment, we aim to:
+To practice everyday Linux terminal utilities:
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Inspect user session and hardware names using \cmd{whoami}, \cmd{who}, and \cmd{hostname}.
-  \item Display formatted messages, timestamps, and insert controlled pauses with \cmd{echo}, \cmd{date}, and \cmd{sleep}.
-  \item Clean terminal clutter using \cmd{clear} and read built-in manual documentation using \cmd{man}.
-  \item Review and recall past executed commands using \cmd{history}.
-  \item Create custom command shortcuts using \cmd{alias} and inspect system environment variables with \cmd{env} and \cmd{printenv}.
+  \item Check user identity and system name (\cmd{whoami}, \cmd{who}, \cmd{hostname}).
+  \item Display text, timestamps, and insert delays (\cmd{echo}, \cmd{date}, \cmd{sleep}).
+  \item Clear terminal screen (\cmd{clear}) and read command manuals (\cmd{man}).
+  \item View past commands (\cmd{history}).
+  \item Create command shortcuts (\cmd{alias}) and view environment variables (\cmd{env}, \cmd{printenv}).
 \end{itemize}
 
 % =========================================================
-% 2. Equipment / Software Requirements
-% =========================================================
-\section{Equipment / Software Requirements}
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\linewidth}{lXlX}
-\toprule
-\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
-\midrule
-\textbf{Operating System} & Linux (NixOS 26.11 / Ubuntu 24.04) & \textbf{Host Machine} & \texttt{firefly} \\
-\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 \\
-\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Core Utilities} & GNU Coreutils, Bash Builtins, Man-db \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-8pt}
-
-% =========================================================
-% 3. Theoretical Background
+% 2. Theoretical Background
 % =========================================================
 \section{Theoretical Background}
-Linux provides a rich set of built-in helpers and utility programs. These tools don't just manipulate files; they reveal system identity, keep track of our workflow history, create personalized shortcuts, and allow scripts to pause and read system environment variables.
+Linux provides essential utilities for identity, screen control, documentation, history, aliases, and environment variables.
 
 \subsection{Commands Practiced in This Lab}
 \vspace{-2pt}
@@ -191,18 +171,18 @@ Linux provides a rich set of built-in helpers and utility programs. These tools 
 \toprule
 \textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
 \midrule
-\cmd{whoami} & \texttt{whoami} & Prints effective username currently running the shell. & \texttt{whoami} \\
-\cmd{who} & \texttt{who} & Lists all users currently logged into the system. & \texttt{who} \\
-\cmd{hostname} & \texttt{hostname} & Prints the network system name of the machine. & \texttt{hostname} \\
-\cmd{date} & \texttt{date} & Displays current system date, time, and timezone. & \texttt{date} \\
-\cmd{echo} & \texttt{echo <text>} & Prints given text or variable values to standard output. & \texttt{echo "Hello OS Lab"} \\
-\cmd{sleep} & \texttt{sleep <N>} & Pauses the terminal/script execution for $N$ seconds. & \texttt{sleep 2} \\
-\cmd{clear} & \texttt{clear} & Clears the terminal screen of prior output. & \texttt{clear} \\
-\cmd{man} & \texttt{man <command>} & Opens the full official manual page for a command. & \texttt{man echo} \\
-\cmd{history} & \texttt{history} & Lists previously executed commands with numbers. & \texttt{history | tail -n 5} \\
-\cmd{alias} & \texttt{alias name='cmd'} & Creates a custom short shortcut for a longer command. & \texttt{alias ll='ls -lh'} \\
-\cmd{env} & \texttt{env} & Displays all exported environment variables. & \texttt{env | grep USER} \\
-\cmd{printenv} & \texttt{printenv [var]} & Prints all or specific environment variable values. & \texttt{printenv SHELL} \\
+\cmd{whoami} & \texttt{whoami} & Print current username. & \texttt{whoami} \\
+\cmd{who} & \texttt{who} & List logged-in users. & \texttt{who} \\
+\cmd{hostname} & \texttt{hostname} & Print system network name. & \texttt{hostname} \\
+\cmd{date} & \texttt{date} & Display current date and time. & \texttt{date} \\
+\cmd{echo} & \texttt{echo <text>} & Print text to terminal. & \texttt{echo "Hello"} \\
+\cmd{sleep} & \texttt{sleep <N>} & Pause execution for $N$ seconds. & \texttt{sleep 2} \\
+\cmd{clear} & \texttt{clear} & Clear terminal screen. & \texttt{clear} \\
+\cmd{man} & \texttt{man <cmd>} & View manual page for a command. & \texttt{man echo} \\
+\cmd{history} & \texttt{history} & List previously run commands. & \texttt{history} \\
+\cmd{alias} & \texttt{alias name='cmd'} & Create shortcut for command. & \texttt{alias ll='ls -lh'} \\
+\cmd{env} & \texttt{env} & Display environment variables. & \texttt{env} \\
+\cmd{printenv} & \texttt{printenv [var]} & Print value of environment variable. & \texttt{printenv SHELL} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -210,70 +190,54 @@ Linux provides a rich set of built-in helpers and utility programs. These tools 
 
 \subsection{Grouping Utilities by Everyday Function}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{System Identity:} \cmd{whoami}, \cmd{who}, \cmd{hostname}, and \cmd{date} answer \textit{"Who am I, who else is here, what machine is this, and what time is it?"}
-  \item \textbf{Terminal Control:} \cmd{clear} tidies the workspace, \cmd{echo} displays messages, and \cmd{sleep} introduces delays in scripts.
-  \item \textbf{Knowledge \& Recall:} \cmd{man} provides offline documentation, while \cmd{history} lets us recall and re-run past commands easily.
-  \item \textbf{Environment \& Efficiency:} \cmd{alias} speeds up typing by creating abbreviations, and \cmd{env}/\cmd{printenv} view system variables.
+  \item \textbf{Identity:} \cmd{whoami}, \cmd{who}, \cmd{hostname}, and \cmd{date} display user and system status.
+  \item \textbf{Control \& Help:} \cmd{clear} clears screen, \cmd{echo} prints text, \cmd{sleep} pauses, \cmd{man} shows documentation.
+  \item \textbf{Workflow:} \cmd{alias} creates shortcuts, \cmd{history} lists past commands, \cmd{env}/\cmd{printenv} check environment variables.
 \end{itemize}
+\vspace{-6pt}
+
+% =========================================================
+% 3. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 \\
+\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Core Utilities} & GNU Coreutils, Bash Builtins, Man-db \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-8pt}
 
 \newpage
-
-% =========================================================
-% 4. Functional Overview Diagram
-% =========================================================
-\section{Functional Architecture of Terminal Utilities}
-The 12 utility commands explored in this lab fall into three distinct functional categories:
-
-\begin{center}
-\begin{tikzpicture}[
-  x=1cm, y=1cm,
-  groupbox/.style={draw=primary, fill=boxbg, rounded corners=3pt, font=\sffamily\footnotesize\bfseries, inner sep=4pt, text=primary},
-  cmdbox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=2.5pt}
-]
-  % Category 1
-  \node[groupbox] (g1) at (-4.8, 0) {1. System \& Identity};
-  \node[cmdbox] (c1) at (-4.8, -0.7) {whoami \ \ hostname};
-  \node[cmdbox] (c2) at (-4.8, -1.3) {who \ \ \ \ \ date};
-
-  % Category 2
-  \node[groupbox] (g2) at (0, 0) {2. Terminal Control \& Help};
-  \node[cmdbox] (c3) at (0, -0.7) {clear \ \ \ echo \ \ \ sleep};
-  \node[cmdbox] (c4) at (0, -1.3) {man \ \ \ \ \ history};
-
-  % Category 3
-  \node[groupbox] (g3) at (4.8, 0) {3. Environment \& Shortcuts};
-  \node[cmdbox] (c5) at (4.8, -0.7) {alias (custom shortcuts)};
-  \node[cmdbox] (c6) at (4.8, -1.3) {env \ \ \ \ \ printenv};
-
-  % Connecting lines
-  \draw[-, thick, darkslate] (g1) -- (c1);
-  \draw[-, thick, darkslate] (g2) -- (c3);
-  \draw[-, thick, darkslate] (g3) -- (c5);
-\end{tikzpicture}
-\end{center}
-\vspace{-8pt}
 
 % =========================================================
 % 5. Procedure / Steps
 % =========================================================
 \section{Procedure / Steps}
-We tested the utilities systematically using the following simple steps:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Checked our logged-in identity with \cmd{whoami} and machine hostname with \cmd{hostname}.
-  \item Listed active user logins on the terminal with \cmd{who} and printed the system time with \cmd{date}.
-  \item Printed a welcome message using \cmd{echo} and tested a timed delay using \cmd{sleep 2}.
-  \item Cleared the terminal viewport using the \cmd{clear} command.
-  \item Consulted the official manual page for the \cmd{echo} utility using \cmd{man echo}.
-  \item Created a convenient command shortcut \cmd{alias ll='ls -lh'} and verified that it works.
-  \item Checked exported environment variables such as \cmd{USER} and \cmd{SHELL} using \cmd{printenv} and \cmd{env}.
-  \item Reviewed our complete session history using the \cmd{history} command.
+  \item Check user identity with \cmd{whoami} and system name with \cmd{hostname}.
+  \item List logged-in users with \cmd{who} and display system time with \cmd{date}.
+  \item Print message with \cmd{echo} and test delay with \cmd{sleep 2}.
+  \item Clear terminal screen using \cmd{clear}.
+  \item View manual page using \cmd{man echo}.
+  \item Create and test command shortcut using \cmd{alias ll='ls -lh'}.
+  \item Inspect environment variables using \cmd{printenv} and \cmd{env}.
+  \item View command history using \cmd{history}.
 \end{enumerate}
 
 % =========================================================
 % 6. Result / Output Demonstration (Session 1)
 % =========================================================
 \section{Result / Output Demonstration}
-All commands were executed under user account \texttt{ratul} on host machine \texttt{firefly}.
+Commands run on Ubuntu under user \texttt{ratul}:
 
 \subsection{Session 1: Identity, System Time, Output Display, and Documentation}
 
@@ -328,11 +292,11 @@ All commands were executed under user account \texttt{ratul} on host machine \te
 
 \paragraph{Explanation of Session 1 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{hostname} and \cmd{whoami}: Displayed our computer name (\texttt{firefly}) and user identity (\texttt{ratul}).
-  \item \cmd{who}: Showed the active terminal session on pseudoterminal \texttt{pts/0} with login timestamp.
-  \item \cmd{date}: Displayed the full current system date, time, and timezone.
-  \item \cmd{echo} and \cmd{sleep 2}: \cmd{echo} printed text to stdout, while \cmd{sleep 2} paused execution for 2 seconds.
-  \item \cmd{clear} and \cmd{man echo}: \cmd{clear} wiped the terminal view, and \cmd{man echo} provided official documentation.
+  \item \cmd{hostname} \& \cmd{whoami}: Displayed machine name (\texttt{firefly}) and username (\texttt{ratul}).
+  \item \cmd{who}: Showed active session on terminal \texttt{pts/0}.
+  \item \cmd{date}: Displayed system date, time, and timezone.
+  \item \cmd{echo} \& \cmd{sleep}: Printed text and paused execution for 2 seconds.
+  \item \cmd{clear} \& \cmd{man}: Cleared terminal screen and displayed manual documentation.
 \end{itemize}
 
 \newpage
@@ -397,23 +361,22 @@ All commands were executed under user account \texttt{ratul} on host machine \te
 
 \paragraph{Explanation of Session 2 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{alias ll="ls -lh"}: Created a custom shortcut named \texttt{ll}. Running \cmd{ll} immediately executed the long listing command with human-readable file sizes.
-  \item \cmd{printenv USER SHELL}: Queried the system environment for specific variables, confirming our username and default shell.
-  \item \cmd{env | grep ...}: Displayed all global environment variables and filtered for home directory, hostname, and user.
-  \item \cmd{history}: Printed the numbered list of previously executed commands, demonstrating how Linux records shell activity so users can recall commands.
+  \item \cmd{alias ll="ls -lh"}: Created shortcut \cmd{ll} for detailed file listing.
+  \item \cmd{printenv}: Displayed values of \texttt{USER} and \texttt{SHELL}.
+  \item \cmd{env | grep}: Filtered and displayed specific environment variables.
+  \item \cmd{history}: Displayed numbered list of executed commands.
 \end{itemize}
 
 % =========================================================
 % 7. Conclusion
 % =========================================================
 \section{Conclusion}
-In this lab, we practiced everyday command-line utilities that improve terminal productivity in Linux:
+Key takeaways:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item We determined active system state, user session, and hardware identity using \cmd{whoami}, \cmd{who}, \cmd{hostname}, and \cmd{date}.
-  \item We controlled terminal output and execution timing using \cmd{echo}, \cmd{sleep}, and \cmd{clear}, and accessed documentation with \cmd{man}.
-  \item We configured custom command shortcuts using \cmd{alias} to save repetitive keystrokes.
-  \item We inspected global configuration settings with \cmd{env} and \cmd{printenv}, and tracked command history with \cmd{history}.
+  \item \cmd{whoami}, \cmd{who}, \cmd{hostname}, and \cmd{date} inspect user and machine identity.
+  \item \cmd{echo}, \cmd{sleep}, and \cmd{clear} control output and screen flow; \cmd{man} provides documentation.
+  \item \cmd{alias} saves keystrokes with shortcuts; \cmd{history} recalls past commands.
+  \item \cmd{env} and \cmd{printenv} inspect system environment variables.
 \end{enumerate}
-These utilities form the foundation of a comfortable, efficient, and professional Linux command-line workflow.
 
 \end{document}

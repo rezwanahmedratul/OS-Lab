@@ -147,40 +147,19 @@
 % 1. Objective
 % =========================================================
 \section{Objective}
-The objective of this lab is to learn how to manage software packages on Debian and Ubuntu Linux using the Advanced Package Tool (\cmd{apt}). By completing this experiment, we aim to:
+To learn software package management in Linux using APT:
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Understand the role of package repositories and local package lists in Linux.
-  \item Refresh repository indexes using \cmd{sudo apt update} and update installed software using \cmd{sudo apt upgrade}.
-  \item Search, download, and install command-line tools using \cmd{sudo apt install}.
-  \item Learn the difference between standard uninstallation (\cmd{remove}) and complete cleanup (\cmd{purge}).
-  \item Automatically clean up orphaned and unused dependencies using \cmd{sudo apt autoremove}.
+  \item Refresh package lists (\cmd{sudo apt update}) and upgrade packages (\cmd{sudo apt upgrade}).
+  \item Install software packages (\cmd{sudo apt install}).
+  \item Compare removing software (\cmd{remove}) vs completely deleting settings (\cmd{purge}).
+  \item Remove unused dependencies (\cmd{sudo apt autoremove}).
 \end{itemize}
 
 % =========================================================
-% 2. Equipment / Software Requirements
-% =========================================================
-\section{Equipment / Software Requirements}
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\linewidth}{lXlX}
-\toprule
-\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
-\midrule
-\textbf{Operating System} & Linux (Ubuntu 24.04 LTS / Debian 12) & \textbf{Host Machine} & \texttt{firefly} \\
-\textbf{User Account} & \texttt{ratul} (with sudo privileges) & \textbf{Command Shell} & GNU Bash 5.2 \\
-\textbf{Package Manager} & APT (Advanced Package Tool) & \textbf{Demo Packages} & \texttt{htop} (system monitor), \texttt{tree} (directory viewer) \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-8pt}
-
-% =========================================================
-% 3. Theoretical Background
+% 2. Theoretical Background
 % =========================================================
 \section{Theoretical Background}
-In Linux, software is distributed as pre-compiled bundles called \textbf{packages} (e.g., \texttt{.deb} files). Rather than downloading installer files from random websites, Linux uses a centralized, secure \textbf{package manager} (\cmd{apt}) that contacts official online servers (repositories) to fetch, install, and update programs automatically.
+Linux uses package managers like \cmd{apt} to fetch, install, update, and remove software packages from official repositories.
 
 \subsection{Commands Practiced in This Lab}
 \vspace{-2pt}
@@ -191,12 +170,12 @@ In Linux, software is distributed as pre-compiled bundles called \textbf{package
 \toprule
 \textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
 \midrule
-\cmd{update} & \texttt{sudo apt update} & Refreshes the local list of available packages from online repositories. Does \textit{not} install updates. & \texttt{sudo apt update} \\
-\cmd{upgrade} & \texttt{sudo apt upgrade} & Downloads and installs newer versions of all installed packages on the system. & \texttt{sudo apt upgrade} \\
-\cmd{install} & \texttt{sudo apt install <pkg>} & Downloads and installs the requested package along with all needed libraries (dependencies). & \texttt{sudo apt install htop tree} \\
-\cmd{remove} & \texttt{sudo apt remove <pkg>} & Uninstalls the program binaries, but keeps user configuration files intact on disk. & \texttt{sudo apt remove tree} \\
-\cmd{autoremove} & \texttt{sudo apt autoremove} & Removes leftover dependency packages that were installed automatically and are no longer needed. & \texttt{sudo apt autoremove} \\
-\cmd{purge} & \texttt{sudo apt purge <pkg>} & Completely deletes the software AND all its configuration and data files from the system. & \texttt{sudo apt purge htop} \\
+\cmd{update} & \texttt{sudo apt update} & Refresh package list from repositories. & \texttt{sudo apt update} \\
+\cmd{upgrade} & \texttt{sudo apt upgrade} & Upgrade installed packages to newest versions. & \texttt{sudo apt upgrade} \\
+\cmd{install} & \texttt{sudo apt install <pkg>} & Download and install package and dependencies. & \texttt{sudo apt install tree} \\
+\cmd{remove} & \texttt{sudo apt remove <pkg>} & Uninstall package but keep configuration files. & \texttt{sudo apt remove tree} \\
+\cmd{autoremove} & \texttt{sudo apt autoremove} & Remove unused leftover dependencies. & \texttt{sudo apt autoremove} \\
+\cmd{purge} & \texttt{sudo apt purge <pkg>} & Completely delete package and configuration files. & \texttt{sudo apt purge htop} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -211,9 +190,29 @@ In Linux, software is distributed as pre-compiled bundles called \textbf{package
 \toprule
 \textbf{Action} & \textbf{What It Deletes} & \textbf{When To Use} \\
 \midrule
-\textbf{\texttt{apt remove}} & Application binary and executable files. & When you want to remove an app temporarily but keep your settings in case you reinstall it later. \\
-\textbf{\texttt{apt purge}} & Application binaries and all configuration files. & When an app is broken or never needed again, and you want zero residual files left on disk. \\
-\textbf{\texttt{apt autoremove}} & Orphaned background libraries. & Run periodically after uninstalling programs to free disk space from unused leftover packages. \\
+\textbf{\texttt{apt remove}} & Application binaries only. & Keep settings for future reinstallation. \\
+\textbf{\texttt{apt purge}} & Binaries and configuration files. & Completely erase software and settings. \\
+\textbf{\texttt{apt autoremove}} & Unused leftover dependencies. & Clean disk space after removing programs. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+% =========================================================
+% 3. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} (with sudo privileges) & \textbf{Command Shell} & GNU Bash 5.2 \\
+\textbf{Package Manager} & APT (Advanced Package Tool) & \textbf{Demo Packages} & \texttt{htop}, \texttt{tree} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -221,59 +220,25 @@ In Linux, software is distributed as pre-compiled bundles called \textbf{package
 \newpage
 
 % =========================================================
-% 4. Package Lifecycle / Workflow
-% =========================================================
-\section{Package Management Lifecycle in Linux}
-Understanding how APT interacts with online repositories and the local system helps prevent broken packages:
-
-\begin{center}
-\begin{tikzpicture}[
-  x=1cm, y=1cm,
-  repobox/.style={draw=primary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3.5pt},
-  cachebox/.style={draw=secondary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3pt},
-  sysbox/.style={draw=darkslate, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=2.5pt},
-  delbox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, text=red!80!black, inner sep=2.5pt}
-]
-  % Nodes
-  \node[repobox] (repo) at (-4.8, 0) {Online Repositories};
-  \node[cachebox] (index) at (-0.5, 0) {Local Package Index};
-  \node[sysbox] (sys) at (4.4, 0) {Installed Software};
-
-  \node[delbox] (rem) at (2.4, -1.1) {remove: deletes binary};
-  \node[delbox] (pur) at (6.2, -1.1) {purge: deletes binary + configs};
-  \node[delbox] (auto) at (4.4, -1.8) {autoremove: cleans unused dependencies};
-
-  % Arrows
-  \draw[->, thick, darkslate] (repo) -- node[above, font=\scriptsize\sffamily] {\cmd{apt update}} (index);
-  \draw[->, thick, darkslate] (index) -- node[above, font=\scriptsize\sffamily] {\cmd{apt install}} (sys);
-  \draw[->, thick, darkslate] (sys.south) -| (rem.north);
-  \draw[->, thick, darkslate] (sys.south) -| (pur.north);
-  \draw[->, thick, darkslate] (sys.south) -- (auto.north);
-\end{tikzpicture}
-\end{center}
-\vspace{-8pt}
-
-% =========================================================
 % 5. Procedure / Steps
 % =========================================================
 \section{Procedure / Steps}
-We practiced package management using the following safe, structured steps:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Ran \cmd{sudo apt update} to download the latest package version catalog from the Ubuntu mirrors.
-  \item Simulated a system upgrade using \cmd{sudo apt upgrade} to review package changes.
-  \item Installed two practical utilities (\cmd{htop} and \cmd{tree}) using \cmd{sudo apt install -y htop tree}.
-  \item Verified that both binaries were successfully installed using the \cmd{which} command.
-  \item Uninstalled the \cmd{tree} package using \cmd{sudo apt remove tree} and checked config preservation.
-  \item Cleaned up any orphaned packages left behind using \cmd{sudo apt autoremove}.
-  \item Fully purged the \cmd{htop} package and its global configs using \cmd{sudo apt purge htop}.
-  \item Verified that the uninstalled utilities were no longer present on the system.
+  \item Update package repository lists using \cmd{sudo apt update}.
+  \item Simulate system package upgrade using \cmd{sudo apt upgrade}.
+  \item Install utilities \cmd{htop} and \cmd{tree} using \cmd{sudo apt install -y htop tree}.
+  \item Verify installed paths using \cmd{which htop tree}.
+  \item Remove \cmd{tree} package using \cmd{sudo apt remove -y tree}.
+  \item Remove unused dependencies using \cmd{sudo apt autoremove -y}.
+  \item Purge \cmd{htop} and all config files using \cmd{sudo apt purge -y htop}.
+  \item Verify removal using \cmd{which htop}.
 \end{enumerate}
 
 % =========================================================
 % 6. Result / Output Demonstration (Session 1)
 % =========================================================
 \section{Result / Output Demonstration}
-All commands were executed under user account \texttt{ratul} on host machine \texttt{firefly}.
+Commands run on Ubuntu under user \texttt{ratul}:
 
 \subsection{Session 1: Updating Package Lists, Upgrading, and Installing Software}
 
@@ -330,9 +295,9 @@ All commands were executed under user account \texttt{ratul} on host machine \te
 
 \paragraph{Explanation of Session 1 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{sudo apt update}: Reached out to the official Ubuntu repositories and updated our local index database. It told us which software versions are currently available without downloading program files.
-  \item \cmd{sudo apt upgrade}: Checked our installed packages against the updated catalog and ensured no security patches were pending.
-  \item \cmd{sudo apt install -y htop tree}: Downloaded and installed both \cmd{htop} and \cmd{tree}. The \cmd{-y} flag automatically accepted the confirmation prompt.
+  \item \cmd{sudo apt update}: Fetched latest package index from Ubuntu mirrors without installing packages.
+  \item \cmd{sudo apt upgrade}: Checked for package updates; all packages were already up to date.
+  \item \cmd{sudo apt install -y htop tree}: Downloaded and installed both packages automatically.
 \end{itemize}
 
 \newpage
@@ -403,24 +368,23 @@ All commands were executed under user account \texttt{ratul} on host machine \te
 
 \paragraph{Explanation of Session 2 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{which htop tree}: Confirmed both packages were placed in \texttt{/usr/bin/}.
-  \item \cmd{sudo apt remove tree}: Deleted the executable file for \cmd{tree}. If \texttt{tree} had custom configuration files, they would have been safely preserved.
-  \item \cmd{sudo apt autoremove}: Scanned for any unused libraries that were installed automatically as dependencies, keeping the disk tidy.
-  \item \cmd{sudo apt purge htop}: Completely removed \cmd{htop} and wiped out all its system configuration files.
-  \item \cmd{which htop}: Returned empty output, proving that the tool was completely eliminated from the environment.
+  \item \cmd{which htop tree}: Confirmed binaries were installed in \texttt{/usr/bin/}.
+  \item \cmd{sudo apt remove tree}: Deleted program binary while preserving configuration files.
+  \item \cmd{sudo apt autoremove}: Cleaned up leftover unused dependencies.
+  \item \cmd{sudo apt purge htop}: Removed \cmd{htop} binary and purged all configuration files.
+  \item \cmd{which htop}: Returned no output, confirming complete removal.
 \end{itemize}
 
 % =========================================================
 % 7. Conclusion
 % =========================================================
 \section{Conclusion}
-In this lab, we developed a clear understanding of package management in Debian and Ubuntu Linux:
+Key takeaways:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item We refreshed package catalogs using \cmd{update} and applied upgrades to installed packages using \cmd{upgrade}.
-  \item We installed software easily along with all needed dependencies using \cmd{install}.
-  \item We learned the practical differences between \cmd{remove} (keeps configurations) and \cmd{purge} (deletes everything including configs).
-  \item We cleaned orphaned dependencies using \cmd{autoremove} to keep our Linux system lean, fast, and free of unnecessary clutter.
+  \item \cmd{apt update} refreshes repository lists, while \cmd{apt upgrade} updates installed software.
+  \item \cmd{apt install} downloads and installs programs with required dependencies.
+  \item \cmd{apt remove} removes binaries, while \cmd{apt purge} wipes configuration files as well.
+  \item \cmd{apt autoremove} cleans orphaned dependencies to free disk space.
 \end{enumerate}
-Mastering APT ensures system stability and smooth software maintenance in everyday Linux administration.
 
 \end{document}

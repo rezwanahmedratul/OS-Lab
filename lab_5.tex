@@ -149,40 +149,19 @@
 % 1. Objective
 % =========================================================
 \section{Objective}
-The objective of this lab is to learn how to search for files and text efficiently in Linux systems. By completing this experiment, we aim to:
+To practice file and text searching commands in Linux:
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Search and locate files by name, pattern, and file type using the \cmd{find} command.
-  \item Search for specific words and patterns inside text files using \cmd{grep}.
-  \item Master essential \cmd{grep} flags: case-insensitive search (\cmd{-i}), line numbers (\cmd{-n}), and inverted match (\cmd{-v}).
-  \item Recursively search across entire folder structures using \cmd{grep -r} and \cmd{grep -rn}.
-  \item Understand when to use \cmd{find} (finding files on disk) versus \cmd{grep} (finding text inside files).
+  \item Find files by name and type using \cmd{find}.
+  \item Search text inside files using \cmd{grep}.
+  \item Use \cmd{grep} flags: case-insensitive (\cmd{-i}), line numbers (\cmd{-n}), invert (\cmd{-v}).
+  \item Search folders recursively using \cmd{grep -r} and \cmd{grep -rn}.
 \end{itemize}
 
 % =========================================================
-% 2. Equipment / Software Requirements
-% =========================================================
-\section{Equipment / Software Requirements}
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\linewidth}{lXlX}
-\toprule
-\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
-\midrule
-\textbf{Operating System} & Linux (NixOS 26.11 / Ubuntu 24.04) & \textbf{Host Machine} & \texttt{firefly} \\
-\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 \\
-\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Search Tools} & GNU Findutils (\texttt{find}), GNU Grep (\texttt{grep}) \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-8pt}
-
-% =========================================================
-% 3. Theoretical Background
+% 2. Theoretical Background
 % =========================================================
 \section{Theoretical Background}
-When working on large Linux systems with thousands of files, finding the right file or the right line of code manually is impossible. Linux provides two complementary search tools: \cmd{find} searches through the directory tree looking for \textit{files and folders}, while \cmd{grep} searches \textit{inside the text contents} of those files.
+Linux provides two main search tools: \cmd{find} locates files on disk, while \cmd{grep} searches text inside files.
 
 \subsection{Commands Practiced in This Lab}
 \vspace{-2pt}
@@ -193,15 +172,15 @@ When working on large Linux systems with thousands of files, finding the right f
 \toprule
 \textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
 \midrule
-\cmd{find} & \texttt{find <dir> -name "<pattern>"} & Finds files matching a name pattern. & \texttt{find . -name "*.log"} \\
-\cmd{find -iname} & \texttt{find <dir> -iname "<pattern>"} & Case-insensitive search for file names. & \texttt{find . -iname "notes*"} \\
-\cmd{find -type} & \texttt{find <dir> -type <f|d>} & Filters results by type: \texttt{f} (file) or \texttt{d} (directory). & \texttt{find . -type d} \\
-\cmd{grep} & \texttt{grep "<text>" <file>} & Searches for exact text inside a specified file. & \texttt{grep "ERROR" server.log} \\
-\cmd{grep -i} & \texttt{grep -i "<text>" <file>} & Ignores uppercase/lowercase differences. & \texttt{grep -i "error" server.log} \\
-\cmd{grep -n} & \texttt{grep -n "<text>" <file>} & Displays the line number where match was found. & \texttt{grep -n "fail" server.log} \\
-\cmd{grep -v} & \texttt{grep -v "<text>" <file>} & Inverts match: shows lines that do \textit{not} match. & \texttt{grep -v "DEBUG" app.log} \\
-\cmd{grep -r} & \texttt{grep -r "<text>" <dir>} & Recursively searches all files inside folders. & \texttt{grep -r "database" .} \\
-\cmd{grep -rn} & \texttt{grep -rn "<text>" <dir>} & Recursive search showing file names and line numbers. & \texttt{grep -rn "TODO" .} \\
+\cmd{find} & \texttt{find <dir> -name "<pattern>"} & Find files matching name pattern. & \texttt{find . -name "*.log"} \\
+\cmd{find -iname} & \texttt{find <dir> -iname "<pattern>"} & Case-insensitive name search. & \texttt{find . -iname "notes*"} \\
+\cmd{find -type} & \texttt{find <dir> -type <f|d>} & Filter by file (\texttt{f}) or directory (\texttt{d}). & \texttt{find . -type d} \\
+\cmd{grep} & \texttt{grep "<text>" <file>} & Search text inside file. & \texttt{grep "ERROR" server.log} \\
+\cmd{grep -i} & \texttt{grep -i "<text>" <file>} & Case-insensitive text search. & \texttt{grep -i "error" server.log} \\
+\cmd{grep -n} & \texttt{grep -n "<text>" <file>} & Show matching line numbers. & \texttt{grep -n "fail" server.log} \\
+\cmd{grep -v} & \texttt{grep -v "<text>" <file>} & Invert search (lines without text). & \texttt{grep -v "DEBUG" app.log} \\
+\cmd{grep -r} & \texttt{grep -r "<text>" <dir>} & Search recursively in all folders. & \texttt{grep -r "database" .} \\
+\cmd{grep -rn} & \texttt{grep -rn "<text>" <dir>} & Recursive search with line numbers. & \texttt{grep -rn "TODO" .} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -216,9 +195,29 @@ When working on large Linux systems with thousands of files, finding the right f
 \toprule
 \textbf{Feature} & \textbf{\texttt{find}} & \textbf{\texttt{grep}} \\
 \midrule
-\textbf{Primary Goal} & Locating files and directories on disk. & Locating lines of text inside files. \\
-\textbf{Search Target} & File names, file sizes, permissions, modification dates. & Words, phrases, patterns inside file content. \\
-\textbf{Analogy} & Finding a specific book in a large library. & Finding a specific sentence inside a book. \\
+\textbf{Primary Goal} & Locate files and folders on disk. & Locate lines of text inside files. \\
+\textbf{Search Target} & File names, types, sizes. & Text words and patterns. \\
+\textbf{Analogy} & Finding a book in a library. & Finding a sentence inside a book. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+% =========================================================
+% 3. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 \\
+\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Search Tools} & GNU Findutils (\texttt{find}), GNU Grep (\texttt{grep}) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -226,69 +225,25 @@ When working on large Linux systems with thousands of files, finding the right f
 \newpage
 
 % =========================================================
-% 4. Demo Directory Structure
-% =========================================================
-\section{Equipment / Demo Directory Setup}
-To practice search operations, we set up a mock project workspace called \cmd{lab5\_search} inside \texttt{/home/ratul}. It contains source code, configuration files, notes, and log files:
-
-\begin{center}
-\begin{tikzpicture}[
-  x=1cm, y=1cm,
-  dirbox/.style={draw=primary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3.5pt},
-  subbox/.style={draw=secondary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3pt},
-  filebox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=2.5pt}
-]
-  % Root node
-  \node[dirbox] (root) at (0, 0) {/home/ratul/lab5\_search/};
-
-  % Branches
-  \node[subbox] (docs)  at (-4.8, -0.95) {docs/};
-  \node[filebox] (f1)   at (-4.8, -1.65) {README.md};
-  \node[filebox] (f2)   at (-4.8, -2.35) {notes.txt};
-
-  \node[subbox] (src)   at (-0.5, -0.95) {src/};
-  \node[filebox] (f3)   at (-0.5, -1.65) {main.py \textcolor{termuser}{(database)}};
-  \node[filebox] (f4)   at (-0.5, -2.35) {utils.py \textcolor{termmatch}{(TODO: auth)}};
-
-  \node[subbox] (logs)  at (4.2, -0.95) {logs/};
-  \node[filebox] (f5)   at (4.2, -1.65) {server.log \textcolor{termmatch}{(ERROR, WARN)}};
-  \node[filebox] (f6)   at (4.2, -2.35) {error.log};
-
-  % Arrows
-  \draw[->, thick, darkslate] (root.south) -| (docs.north);
-  \draw[->, thick, darkslate] (docs.south) -- (f1.north);
-  \draw[->, thick, darkslate] (f1.south) -- (f2.north);
-  \draw[->, thick, darkslate] (root.south) -- (src.north);
-  \draw[->, thick, darkslate] (src.south) -- (f3.north);
-  \draw[->, thick, darkslate] (f3.south) -- (f4.north);
-  \draw[->, thick, darkslate] (root.south) -| (logs.north);
-  \draw[->, thick, darkslate] (logs.south) -- (f5.north);
-  \draw[->, thick, darkslate] (f5.south) -- (f6.north);
-\end{tikzpicture}
-\end{center}
-\vspace{-8pt}
-
-% =========================================================
 % 5. Procedure / Steps
 % =========================================================
 \section{Procedure / Steps}
-We practiced file and content searching using the following organized steps:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Initialized our practice directory \cmd{lab5\_search} and navigated inside.
-  \item Used \cmd{find} to locate all \texttt{.log} files anywhere in the project tree.
-  \item Searched case-insensitively for documentation files using \cmd{find . -iname "readme*"}.
-  \item Filtered search output by item type: directories only (\cmd{find . -type d}) and regular files only (\cmd{find . -type f}).
-  \item Searched for exact occurrences of \texttt{"ERROR"} inside \cmd{logs/server.log} using \cmd{grep}.
-  \item Performed case-insensitive text search using \cmd{grep -i} and printed line numbers with \cmd{grep -n}.
-  \item Inverted the search match using \cmd{grep -v} to filter out noisy routine messages.
-  \item Recursively searched all folders for configuration variables (\cmd{grep -r}) and developer comments (\cmd{grep -rn}).
+  \item Navigate to practice directory \cmd{lab5\_search}.
+  \item Find \texttt{.log} files using \cmd{find . -name "*.log"}.
+  \item Find files case-insensitively using \cmd{find . -iname "readme*"}.
+  \item Filter by type using \cmd{find . -type d} and \cmd{find . -type f}.
+  \item Search for \texttt{"ERROR"} in log file using \cmd{grep}.
+  \item Search case-insensitively (\cmd{grep -i}) and with line numbers (\cmd{grep -n}).
+  \item Invert search using \cmd{grep -v} to exclude lines.
+  \item Search recursively across directories using \cmd{grep -r} and \cmd{grep -rn}.
 \end{enumerate}
 
 % =========================================================
 % 6. Result / Output Demonstration (Session 1)
 % =========================================================
 \section{Result / Output Demonstration}
-All commands were executed under user account \texttt{ratul} on host machine \texttt{firefly}.
+Commands run on Ubuntu under user \texttt{ratul}:
 
 \subsection{Session 1: Finding Files by Name, Extension, and Type with \cmd{find}}
 
@@ -333,10 +288,10 @@ All commands were executed under user account \texttt{ratul} on host machine \te
 
 \paragraph{Explanation of Session 1 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{find . -name "*.log"}: Walked through all subdirectories and printed paths of all log files. Quotes around \texttt{"*.log"} prevent the shell from expanding the wildcard prematurely.
-  \item \cmd{find . -iname "readme*"}: Found \texttt{README.md} even though we typed the pattern in lowercase.
-  \item \cmd{find . -type d}: Restricted the output strictly to folders, ignoring regular files.
-  \item \cmd{find . -type f -name "*.py"}: Combined the type filter (\cmd{-type f}) with an extension filter (\cmd{-name "*.py"}) to locate Python scripts.
+  \item \cmd{find . -name "*.log"}: Found all \texttt{.log} files in current directory and subdirectories.
+  \item \cmd{find . -iname "readme*"}: Matched \texttt{README.md} regardless of case.
+  \item \cmd{find . -type d}: Listed only directories.
+  \item \cmd{find . -type f -name "*.py"}: Listed only regular Python files.
 \end{itemize}
 
 \newpage
@@ -399,24 +354,23 @@ All commands were executed under user account \texttt{ratul} on host machine \te
 
 \paragraph{Explanation of Session 2 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{grep "ERROR"}: Scanned \texttt{logs/server.log} and printed only lines containing the exact uppercase word \texttt{ERROR}.
-  \item \cmd{grep -i}: Ignored case distinctions, successfully matching both \texttt{WARN} and \texttt{Warning}.
-  \item \cmd{grep -n}: Included line number (\texttt{24:}) alongside the matched text, allowing quick navigation in editors.
-  \item \cmd{grep -v}: Inverted the search to exclude standard routine \texttt{INFO} messages, highlighting only important warnings and errors.
-  \item \cmd{grep -r}: Dived into every subfolder (\texttt{src/}, \texttt{docs/}, \texttt{logs/}) and printed the filename and matching line for \texttt{database}.
-  \item \cmd{grep -rn}: Combined recursion and line numbering, making it easy for developers to find code tasks (\texttt{TODO}) across a codebase.
+  \item \cmd{grep "ERROR"}: Printed lines containing exact word \texttt{ERROR}.
+  \item \cmd{grep -i}: Matched both \texttt{WARN} and \texttt{Warning} (case-insensitive).
+  \item \cmd{grep -n}: Displayed matching line number (\texttt{24:}).
+  \item \cmd{grep -v}: Excluded lines containing \texttt{INFO}.
+  \item \cmd{grep -r}: Recursively searched all files in folders for \texttt{"database"}.
+  \item \cmd{grep -rn}: Recursively searched and displayed file names and line numbers for \texttt{"TODO"}.
 \end{itemize}
 
 % =========================================================
 % 7. Conclusion
 % =========================================================
 \section{Conclusion}
-In this lab, we mastered essential search utilities in the Linux terminal:
+Key takeaways:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item We used \cmd{find} to search the filesystem tree for files and directories based on patterns (\cmd{-name}), case-insensitivity (\cmd{-iname}), and types (\cmd{-type f}, \cmd{-type d}).
-  \item We used \cmd{grep} to scan inside text files, leveraging flags like \cmd{-i} (ignore case), \cmd{-n} (show line numbers), and \cmd{-v} (invert match).
-  \item We applied recursive search using \cmd{grep -r} and \cmd{grep -rn} to rapidly discover configuration strings and code comments across complex directory structures.
+  \item \cmd{find} locates files and directories by name, extension, and type.
+  \item \cmd{grep} searches text inside files using flags like \cmd{-i}, \cmd{-n}, and \cmd{-v}.
+  \item Recursive search (\cmd{grep -r}, \cmd{grep -rn}) quickly finds text across entire directory trees.
 \end{enumerate}
-Together, \cmd{find} and \cmd{grep} provide a fast, reliable, and powerful toolkit for navigating and troubleshooting Linux environments.
 
 \end{document}

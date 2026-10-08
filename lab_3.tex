@@ -147,40 +147,19 @@
 % 1. Objective
 % =========================================================
 \section{Objective}
-The objective of this lab is to learn how to create, duplicate, relocate, and delete files and directories using the Linux command-line interface. By completing this experiment, we aim to:
+To practice Linux file and directory management commands:
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Create single and nested folders using \cmd{mkdir} and \cmd{mkdir -p}.
-  \item Create new empty files quickly using the \cmd{touch} command.
-  \item Duplicate files into new locations or new names using \cmd{cp}.
-  \item Move files between folders and rename existing files using \cmd{mv}.
-  \item Safely delete files and directories using \cmd{rm}, \cmd{rm -r}, and \cmd{rm -rf}.
+  \item Create folders and nested paths (\cmd{mkdir}, \cmd{mkdir -p}).
+  \item Create empty files (\cmd{touch}).
+  \item Copy, move, and rename files (\cmd{cp}, \cmd{mv}).
+  \item Delete files and directories (\cmd{rm}, \cmd{rm -r}, \cmd{rm -rf}).
 \end{itemize}
 
 % =========================================================
-% 2. Equipment / Software Requirements
-% =========================================================
-\section{Equipment / Software Requirements}
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\linewidth}{lXlX}
-\toprule
-\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
-\midrule
-\textbf{Operating System} & Linux (NixOS 26.11, Kernel 6.12) & \textbf{Host Machine} & \texttt{firefly} \\
-\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 / Zsh \\
-\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Core Tools} & GNU Coreutils (\texttt{mkdir}, \texttt{touch}, \texttt{cp}, \texttt{mv}, \texttt{rm}) \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-8pt}
-
-% =========================================================
-% 3. Theoretical Background
+% 2. Theoretical Background
 % =========================================================
 \section{Theoretical Background}
-File and directory management is the most essential skill in Linux. Unlike graphical file managers where users click and drag icons, the terminal allows us to organize, copy, and clean up files very quickly using short commands.
+Linux provides commands to create, duplicate, move, and delete files directly from the terminal without a GUI.
 
 \subsection{Commands Practiced in This Lab}
 \vspace{-2pt}
@@ -191,14 +170,14 @@ File and directory management is the most essential skill in Linux. Unlike graph
 \toprule
 \textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
 \midrule
-\cmd{mkdir} & \texttt{mkdir <name>} & Creates a new empty directory (folder). & \texttt{mkdir docs} \\
-\cmd{mkdir -p} & \texttt{mkdir -p <path>} & Creates parent and child folders together in one step. & \texttt{mkdir -p proj/src/utils} \\
-\cmd{touch} & \texttt{touch <file>} & Creates a new empty file, or updates timestamp. & \texttt{touch notes.txt} \\
-\cmd{cp} & \texttt{cp <src> <dest>} & Copies a file to a new name or destination folder. & \texttt{cp notes.txt backup.txt} \\
-\cmd{mv} & \texttt{mv <src> <dest>} & Moves a file to another folder, or renames it. & \texttt{mv old.txt new.txt} \\
-\cmd{rm} & \texttt{rm <file>} & Deletes one or more files permanently. & \texttt{rm temp.log} \\
-\cmd{rm -r} & \texttt{rm -r <folder>} & Deletes a folder and all its contents recursively. & \texttt{rm -r old\_data} \\
-\cmd{rm -rf} & \texttt{rm -rf <path>} & Forcefully deletes folder and files without any prompt. & \texttt{rm -rf build} \\
+\cmd{mkdir} & \texttt{mkdir <name>} & Create new directory. & \texttt{mkdir docs} \\
+\cmd{mkdir -p} & \texttt{mkdir -p <path>} & Create parent and child folders together. & \texttt{mkdir -p proj/src/utils} \\
+\cmd{touch} & \texttt{touch <file>} & Create empty file or update timestamp. & \texttt{touch notes.txt} \\
+\cmd{cp} & \texttt{cp <src> <dest>} & Copy file to new location/name. & \texttt{cp notes.txt backup.txt} \\
+\cmd{mv} & \texttt{mv <src> <dest>} & Move or rename file/folder. & \texttt{mv old.txt new.txt} \\
+\cmd{rm} & \texttt{rm <file>} & Delete file permanently. & \texttt{rm temp.log} \\
+\cmd{rm -r} & \texttt{rm -r <folder>} & Delete folder and its contents recursively. & \texttt{rm -r old\_data} \\
+\cmd{rm -rf} & \texttt{rm -rf <path>} & Force delete folder and files without prompt. & \texttt{rm -rf build} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -206,73 +185,46 @@ File and directory management is the most essential skill in Linux. Unlike graph
 
 \subsection{Important Rules for File Operations}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{No Recycle Bin in Terminal:} Commands like \cmd{rm} delete files immediately and permanently. There is no graphical Trash folder to recover deleted files.
-  \item \textbf{Parent Flag (\cmd{-p}):} Standard \cmd{mkdir a/b/c} fails if folder \cmd{a} does not exist yet. Adding \cmd{-p} tells Linux to build all missing parent folders automatically.
-  \item \textbf{Recursive Flag (\cmd{-r}):} Standard \cmd{rm} refuses to remove directories. The \cmd{-r} (recursive) flag dives inside the directory and removes all files and subfolders first.
-  \item \textbf{Force Flag (\cmd{-f}):} Suppresses all warning messages and ignores non-existent files. Combined as \cmd{rm -rf}, it forces complete removal without stopping.
+  \item \textbf{No Trash Bin:} \cmd{rm} deletes files immediately and permanently.
+  \item \textbf{Parent Flag (\cmd{-p}):} Creates missing parent folders automatically.
+  \item \textbf{Recursive Flag (\cmd{-r}):} Removes non-empty folders and their contents.
+  \item \textbf{Force Flag (\cmd{-f}):} Ignores errors/prompts, deleting without warning.
 \end{itemize}
+\vspace{-6pt}
+
+% =========================================================
+% 3. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 / Zsh \\
+\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Core Tools} & GNU Coreutils (\texttt{mkdir}, \texttt{touch}, \texttt{cp}, \texttt{mv}, \texttt{rm}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \newpage
-
-% =========================================================
-% 4. Demo Directory Structure
-% =========================================================
-\section{Equipment / Demo Directory Setup}
-To practice these commands safely, we created an isolated practice folder called \cmd{lab3\_demo} inside \texttt{/home/ratul}. The diagram below shows the structure we constructed, organized, and cleaned during this lab:
-
-\begin{center}
-\begin{tikzpicture}[
-  x=1cm, y=1cm,
-  dirbox/.style={draw=primary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3.5pt},
-  subbox/.style={draw=secondary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3pt},
-  filebox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=2.5pt},
-  actionbox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, text=darkslate, inner sep=2.5pt}
-]
-  % Root node
-  \node[dirbox] (root) at (0, 0) {/home/ratul/lab3\_demo/};
-
-  % Branches
-  \node[subbox] (docs)  at (-4.8, -1.0) {docs/};
-  \node[filebox] (f1)   at (-4.8, -1.7) {notes.txt \textcolor{termuser}{\textbf{(touch)}}};
-
-  \node[subbox] (proj)  at (-0.5, -1.0) {proj/ \textcolor{termhost}{\textbf{(-p)}}};
-  \node[subbox] (src)   at (-0.5, -1.7) {src/};
-  \node[filebox] (f2)   at (-0.5, -2.4) {main.c};
-
-  \node[subbox] (bak)   at (3.6, -1.0) {backup/};
-  \node[filebox] (f3)   at (3.6, -1.7) {notes\_copy.txt \textcolor{termdir}{\textbf{(cp)}}};
-
-  \node[actionbox] (del) at (6.2, -1.0) {\textcolor{red!80!black}{\textbf{temp\_cache/}}};
-  \node[actionbox] (del2) at (6.2, -1.7) {\textcolor{red!80!black}{\textbf{(removed: rm -r)}}};
-
-  % Arrows
-  \draw[->, thick, darkslate] (root.south) -| (docs.north);
-  \draw[->, thick, darkslate] (docs.south) -- (f1.north);
-  \draw[->, thick, darkslate] (root.south) -- (proj.north);
-  \draw[->, thick, darkslate] (proj.south) -- (src.north);
-  \draw[->, thick, darkslate] (src.south) -- (f2.north);
-  \draw[->, thick, darkslate] (root.south) -| (bak.north);
-  \draw[->, thick, darkslate] (bak.south) -- (f3.north);
-  \draw[->, thick, darkslate] (root.south) -| (del.north);
-\end{tikzpicture}
-\end{center}
-\vspace{-8pt}
 
 % =========================================================
 % 5. Procedure / Steps
 % =========================================================
 \section{Procedure / Steps}
-We carried out the file and directory management tasks using the following simple steps:
+Steps followed in this experiment:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Created our practice workspace folder \cmd{lab3\_demo} using \cmd{mkdir} and entered it with \cmd{cd}.
-  \item Created a simple directory called \cmd{docs} using \cmd{mkdir}.
-  \item Created a multi-level nested folder tree \cmd{proj/src/utils} in one single command using \cmd{mkdir -p}.
-  \item Created new empty text files (\cmd{notes.txt} and \cmd{main.c}) using the \cmd{touch} command.
-  \item Made a backup folder and duplicated \cmd{notes.txt} into \cmd{notes\_copy.txt} using \cmd{cp}.
-  \item Moved \cmd{notes\_copy.txt} into the \cmd{backup/} folder and renamed files using \cmd{mv}.
-  \item Deleted a single unwanted file safely using \cmd{rm}.
-  \item Created a temporary folder containing files and deleted it completely using \cmd{rm -r}.
-  \item Tested forced recursive deletion of stubborn folder trees using \cmd{rm -rf}.
+  \item Create demo folder (\cmd{mkdir lab3\_demo}) and navigate inside (\cmd{cd}).
+  \item Create folder \cmd{docs} (\cmd{mkdir}) and nested path \cmd{proj/src/utils} (\cmd{mkdir -p}).
+  \item Create empty files \cmd{notes.txt} and \cmd{main.c} using \cmd{touch}.
+  \item Copy \cmd{notes.txt} to \cmd{notes\_copy.txt} using \cmd{cp}.
+  \item Move copy to \cmd{backup/} and rename to \cmd{notes\_v1.txt} using \cmd{mv}.
+  \item Delete file with \cmd{rm}, and delete directories with \cmd{rm -r} and \cmd{rm -rf}.
 \end{enumerate}
 
 % =========================================================
@@ -322,9 +274,9 @@ All commands were executed under user account \texttt{ratul} on host machine \te
 
 \paragraph{Explanation of Session 1 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{mkdir} and \cmd{mkdir -p}: Created \texttt{docs} and \texttt{backup}. With \cmd{-p}, Linux automatically created the whole chain \texttt{proj/src/utils} without complaining that parent folders were missing.
-  \item \cmd{touch}: Instantly created new files \texttt{notes.txt} and \texttt{main.c} with 0 bytes size.
-  \item \cmd{cp}: Duplicated \texttt{notes.txt} into \texttt{notes\_copy.txt}. Both files now exist independently in the folder.
+  \item \cmd{mkdir} and \cmd{mkdir -p}: Created folders; \cmd{-p} created the entire path \texttt{proj/src/utils} at once.
+  \item \cmd{touch}: Created empty 0-byte files \texttt{notes.txt} and \texttt{main.c}.
+  \item \cmd{cp}: Made an exact copy of \texttt{notes.txt} as \texttt{notes\_copy.txt}.
 \end{itemize}
 
 \newpage
@@ -381,24 +333,22 @@ All commands were executed under user account \texttt{ratul} on host machine \te
 
 \paragraph{Explanation of Session 2 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{mv} for moving and renaming: When given a destination folder (\texttt{backup/}), \cmd{mv} relocated the file. When given a new file name (\texttt{notes\_v1.txt}), \cmd{mv} renamed the file in place.
-  \item \cmd{rm}: Deleted the single file \texttt{temp.log} instantly.
-  \item \cmd{rm -r}: Successfully deleted the non-empty folder \texttt{temp\_cache} by removing its subfolder and file recursively.
-  \item \cmd{rm -rf}: Forcibly deleted the entire \texttt{scratch} hierarchy without asking confirmation or throwing errors.
-  \item Final verification with \cmd{ls} confirmed our workspace remained clean with only \texttt{backup}, \texttt{docs}, and \texttt{proj}.
+  \item \cmd{mv}: Relocated \texttt{notes\_copy.txt} into \texttt{backup/} and renamed to \texttt{notes\_v1.txt}.
+  \item \cmd{rm}: Deleted file \texttt{temp.log} permanently.
+  \item \cmd{rm -r} and \cmd{rm -rf}: Recursively removed \texttt{temp\_cache} and force-deleted \texttt{scratch} without prompt.
+  \item Verified remaining folders with \cmd{ls}.
 \end{itemize}
 
 % =========================================================
 % 7. Conclusion
 % =========================================================
 \section{Conclusion}
-In this lab, we practiced the primary commands used for everyday file and directory management in Linux. We learned:
+Key takeaways from this lab:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item How to create single folders with \cmd{mkdir} and nested folder paths with \cmd{mkdir -p}.
-  \item How to generate files with \cmd{touch} and duplicate them safely using \cmd{cp}.
-  \item How to relocate and rename files efficiently using the \cmd{mv} command.
-  \item How to delete files with \cmd{rm}, and recursively remove directory structures using \cmd{rm -r} and \cmd{rm -rf}.
+  \item Created directories with \cmd{mkdir} and nested paths with \cmd{mkdir -p}.
+  \item Created files with \cmd{touch} and duplicated files with \cmd{cp}.
+  \item Moved and renamed files with \cmd{mv}.
+  \item Deleted files with \cmd{rm} and directory trees with \cmd{rm -r} and \cmd{rm -rf}.
 \end{enumerate}
-Understanding these commands enables fast and structured organization of files in the Linux operating system.
 
 \end{document}

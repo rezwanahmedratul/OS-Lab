@@ -149,39 +149,19 @@
 % 1. Objective
 % =========================================================
 \section{Objective}
-The objective of this lab is to learn how to view file contents quickly from the command line and edit configuration or source files using terminal-based text editors. By completing this experiment, we aim to:
+To practice terminal file viewers and text editors:
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Inspect whole text files, file headers, and file tails using \cmd{cat}, \cmd{less}, \cmd{head}, and \cmd{tail}.
-  \item Check software presence using \cmd{which} and install missing editors using \cmd{sudo apt install}.
-  \item Master basic text editing with \cmd{nano}: saving, exiting, cut, copy, paste, undo, redo, searching, and replacing.
-  \item Master modal text editing with \cmd{vim}: switching modes, saving, quitting, yank (copy), put (paste), delete (cut), undo, redo, searching, and substitute (replace).
+  \item View file contents (\cmd{cat}, \cmd{head}, \cmd{tail}, \cmd{less}).
+  \item Check and install editor packages (\cmd{which}, \cmd{sudo apt install}).
+  \item Edit text with \cmd{nano} (save, exit, cut, paste, find, replace).
+  \item Edit text with \cmd{vim} (modes, yank, delete, put, search, substitute).
 \end{itemize}
 
 % =========================================================
-% 2. Equipment / Software Requirements
-% =========================================================
-\section{Equipment / Software Requirements}
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\linewidth}{lXlX}
-\toprule
-\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
-\midrule
-\textbf{Operating System} & Linux (Ubuntu / Debian / NixOS) & \textbf{Host Machine} & \texttt{firefly} \\
-\textbf{User Account} & \texttt{ratul} (with sudo privileges) & \textbf{Terminal Shell} & GNU Bash 5.2 \\
-\textbf{Viewing Utilities} & GNU Coreutils (\texttt{cat}, \texttt{head}, \texttt{tail}), \texttt{less} & \textbf{Text Editors} & GNU Nano 7.2, Vim 9.1 \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-8pt}
-
-% =========================================================
-% 3. Theoretical Background
+% 2. Theoretical Background
 % =========================================================
 \section{Theoretical Background}
-In Linux, administrators and programmers frequently need to read logs and modify system files without a graphical user interface (GUI). Tools in Linux fall into two groups: \textbf{pagers/viewers} (for reading without modifying) and \textbf{terminal text editors} (for creating and editing).
+Linux uses viewers (pagers) for reading files and command-line text editors for modifying files without a GUI.
 
 \subsection{File Viewing Commands}
 \vspace{-2pt}
@@ -192,10 +172,10 @@ In Linux, administrators and programmers frequently need to read logs and modify
 \toprule
 \textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
 \midrule
-\cmd{cat} & \texttt{cat <file>} & Dumps the entire file onto the terminal screen. & \texttt{cat config.txt} \\
-\cmd{less} & \texttt{less <file>} & Opens file in a scrollable viewer (page by page). & \texttt{less system.log} \\
-\cmd{head} & \texttt{head -n <N> <file>} & Shows the first $N$ lines of a file (default is 10 lines). & \texttt{head -n 5 sample.txt} \\
-\cmd{tail} & \texttt{tail -n <N> <file>} & Shows the last $N$ lines of a file (useful for recent logs). & \texttt{tail -n 3 server.log} \\
+\cmd{cat} & \texttt{cat <file>} & Print entire file content. & \texttt{cat config.txt} \\
+\cmd{less} & \texttt{less <file>} & View file page by page (scrollable). & \texttt{less system.log} \\
+\cmd{head} & \texttt{head -n <N> <file>} & Show first $N$ lines. & \texttt{head -n 5 sample.txt} \\
+\cmd{tail} & \texttt{tail -n <N> <file>} & Show last $N$ lines (recent logs). & \texttt{tail -n 3 server.log} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -210,88 +190,46 @@ In Linux, administrators and programmers frequently need to read logs and modify
 \toprule
 \textbf{Editor} & \textbf{Design Style} & \textbf{Best Used For} \\
 \midrule
-\textbf{GNU Nano} & Simple, modeless editor. Always ready to type. Shortcut hints are shown at the bottom of the screen with \key{\^{}} (Ctrl) and \key{M-} (Alt). & Quick edits, configuration changes, and beginners who want immediate typing like Notepad. \\
-\textbf{Vim} & Modal editor with distinct operational modes (\textit{Normal}, \textit{Insert}, and \textit{Command-line}). Keys act as commands in Normal mode. & Advanced editing, code writing, fast navigation without touching the mouse, available on almost every Unix server. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\newpage
-
-% =========================================================
-% 4. Quick Shortcut Reference Tables
-% =========================================================
-\section{Editor Commands and Shortcut Reference}
-
-\subsection{GNU Nano Shortcuts}
-In Nano, \key{\^{}} stands for the \key{Ctrl} key, and \key{M-} (Meta) stands for the \key{Alt} key:
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.06}
-\begin{tabularx}{\linewidth}{lp{3.5cm}X}
-\toprule
-\textbf{Action} & \textbf{Nano Shortcut / Command} & \textbf{Simple Explanation} \\
-\midrule
-\textbf{Check Presence} & \texttt{which nano} & Shows the location of nano executable on disk. \\
-\textbf{Install} & \texttt{sudo apt install nano} & Installs nano package on Debian/Ubuntu systems. \\
-\textbf{Save (WriteOut)} & \key{Ctrl + O} & Prompts for file name and saves changes to disk. \\
-\textbf{Exit} & \key{Ctrl + X} & Closes nano (asks to save if changes were made). \\
-\textbf{Cut Text} & \key{Ctrl + K} & Cuts (kills) the current line or selected text into the buffer. \\
-\textbf{Copy Text} & \key{Alt + 6} (or \key{M-6}) & Copies the selected text or current line into the buffer. \\
-\textbf{Paste Text} & \key{Ctrl + U} & Pastes (uncuts) whatever was last cut or copied. \\
-\textbf{Undo} & \key{Alt + U} & Reverts the previous editing action. \\
-\textbf{Redo} & \key{Alt + E} & Re-applies the undone editing action. \\
-\textbf{Search (Find)} & \key{Ctrl + W} & Opens "Where Is" search prompt; press Enter to jump to match. \\
-\textbf{Search \& Replace} & \key{Ctrl + \textbackslash} & Prompts for search word, then replacement word, and confirms each. \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-4pt}
-
-\subsection{Vim Modal Commands}
-In Vim, press \key{Esc} to ensure you are in \textbf{Normal Mode} before running commands:
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.06}
-\begin{tabularx}{\linewidth}{lp{3.5cm}X}
-\toprule
-\textbf{Action} & \textbf{Vim Command / Key} & \textbf{Simple Explanation} \\
-\midrule
-\textbf{Check Presence} & \texttt{which vim} & Displays the binary path for vim. \\
-\textbf{Install} & \texttt{sudo apt install vim} & Installs full vim editor on Debian/Ubuntu systems. \\
-\textbf{Enter Edit Mode} & \key{i} & Enters Insert Mode so typed keys appear as text. \\
-\textbf{Save} & \texttt{:w} & Writes (saves) changes without quitting. \\
-\textbf{Exit} & \texttt{:q} (or \texttt{:wq} / \texttt{:q!}) & Quits vim (\texttt{:wq} saves and quits; \texttt{:q!} quits without saving). \\
-\textbf{Cut Line} & \key{dd} & Deletes (cuts) the whole current line into the paste register. \\
-\textbf{Copy Line} & \key{yy} & Yanks (copies) the current line into memory. \\
-\textbf{Paste} & \key{p} & Puts (pastes) copied/cut text below the current cursor line. \\
-\textbf{Undo} & \key{u} & Undoes the last change made. \\
-\textbf{Redo} & \key{Ctrl + r} & Redoes the undone change. \\
-\textbf{Search Forward} & \texttt{/word} & Searches for "word"; press \key{n} for next match, \key{N} for previous. \\
-\textbf{Search \& Replace} & \texttt{:\%s/old/new/g} & Replaces all occurrences of "old" with "new" across the entire file. \\
+\textbf{GNU Nano} & Modeless editor with onscreen shortcuts (\key{\^{}} for Ctrl, \key{M-} for Alt). & Quick edits, configuration changes, beginners. \\
+\textbf{Vim} & Modal editor with Normal, Insert, and Command modes. & Fast navigation, script editing, advanced users. \\
 \bottomrule
 \end{tabularx}
 \end{table}
 \vspace{-6pt}
 
 % =========================================================
+% 3. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} (with sudo) & \textbf{Terminal Shell} & GNU Bash 5.2 \\
+\textbf{Viewing Utilities} & GNU Coreutils (\texttt{cat}, \texttt{head}, \texttt{tail}), \texttt{less} & \textbf{Text Editors} & GNU Nano 7.2, Vim 9.1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\newpage
+
+% =========================================================
 % 5. Procedure / Steps
 % =========================================================
 \section{Procedure / Steps}
-We practiced viewing and editing through the following clear, numbered steps:
+Steps followed in this experiment:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Created a multi-line sample log file (\cmd{server.log}) with timestamps and error messages.
-  \item Displayed the entire file using \cmd{cat server.log}.
-  \item Extracted the top 3 lines using \cmd{head -n 3} and bottom 3 lines using \cmd{tail -n 3}.
-  \item Scrolled through the file interactively with \cmd{less server.log} and exited with \key{q}.
-  \item Checked nano installation with \cmd{which nano} (and simulated package update with \cmd{sudo apt install nano}).
-  \item Opened nano, typed text, searched with \key{Ctrl+W}, replaced with \key{Ctrl+\textbackslash}, saved with \key{Ctrl+O}, and exited with \key{Ctrl+X}.
-  \item Checked vim with \cmd{which vim}, opened a file, switched between Normal and Insert modes, performed copy (\key{yy}), paste (\key{p}), cut (\key{dd}), undo (\key{u}), redo (\key{Ctrl+r}), search (\cmd{/text}), replace (\cmd{:\%s/old/new/g}), and saved with \cmd{:wq}.
+  \item Display full log with \cmd{cat server.log}.
+  \item View first 3 lines with \cmd{head -n 3} and last 3 lines with \cmd{tail -n 3}.
+  \item View interactively with \cmd{less server.log} and exit with \key{q}.
+  \item Verify and edit with nano: search, replace, cut, paste, save (\key{Ctrl+O}), and exit (\key{Ctrl+X}).
+  \item Verify and edit with vim: switch modes (\key{i}, \key{Esc}), copy (\key{yy}), paste (\key{p}), cut (\key{dd}), substitute (\cmd{:\%s}), and save-quit (\cmd{:wq}).
 \end{enumerate}
-
-\newpage
 
 % =========================================================
 % 6. Result / Output Demonstration
@@ -340,10 +278,9 @@ All commands were executed under user \texttt{ratul} on host machine \texttt{fir
 
 \paragraph{Explanation of Part 1 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{cat}: Printed all lines directly to the terminal. Great for short files, but long files scroll off screen.
-  \item \cmd{head -n 2}: Filtered and printed only the top 2 lines of the log.
-  \item \cmd{tail -n 2}: Filtered and printed only the bottom 2 lines, which shows the most recent system events.
-  \item \cmd{less}: Opened the file in a clean interactive view where we can scroll and search without modifying the file.
+  \item \cmd{cat}: Printed entire file to terminal.
+  \item \cmd{head} and \cmd{tail}: Extracted top 2 lines and bottom 2 lines of log.
+  \item \cmd{less}: Opened scrollable view without changing file contents.
 \end{itemize}
 
 \subsection{Part 2: Installing and Editing with GNU Nano}
@@ -388,9 +325,8 @@ All commands were executed under user \texttt{ratul} on host machine \texttt{fir
 
 \paragraph{Explanation of Part 2 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{which nano} confirmed nano is located at \texttt{/usr/bin/nano}. \cmd{sudo apt install nano} verified the package is ready.
-  \item Inside nano, we used \key{Ctrl+W} to search, \key{Ctrl+\textbackslash} to replace \texttt{development} with \texttt{production}, \key{Ctrl+K} / \key{Ctrl+U} to cut and paste lines, and \key{Alt+U} / \key{Alt+E} for undo and redo.
-  \item We saved with \key{Ctrl+O} and exited cleanly back to bash using \key{Ctrl+X}.
+  \item Verified nano with \cmd{which nano} and \cmd{sudo apt install nano}.
+  \item Replaced text with \key{Ctrl+\textbackslash}, saved with \key{Ctrl+O}, and exited with \key{Ctrl+X}.
 \end{itemize}
 
 \newpage
@@ -451,24 +387,20 @@ All commands were executed under user \texttt{ratul} on host machine \texttt{fir
 
 \paragraph{Explanation of Part 3 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{Checking \& Installing:} \cmd{which vim} verified the path \texttt{/usr/bin/vim}. \cmd{sudo apt install vim} confirmed the package is installed.
-  \item \textbf{Modes:} Started in \textit{Normal Mode}. Pressed \key{i} to enter \textit{Insert Mode} and add code lines. Pressed \key{Esc} to return to Normal Mode.
-  \item \textbf{Line Operations:} Pressed \key{yy} to yank (copy) line 2 and \key{p} to paste it. Pressed \key{dd} to cut (delete) an unwanted line.
-  \item \textbf{Undo and Redo:} Pressed \key{u} to undo the deletion, and \key{Ctrl+r} to redo it.
-  \item \textbf{Search and Replace:} Searched with \cmd{/backup}. Replaced words using the substitution command \cmd{:\%s/task/service/g}.
-  \item \textbf{Save and Exit:} Saved and quit safely using \cmd{:wq}.
+  \item Switched between Normal mode and Insert mode (\key{i}, \key{Esc}).
+  \item Performed copy (\key{yy}), paste (\key{p}), cut (\key{dd}), and undo/redo (\key{u}, \key{Ctrl+r}).
+  \item Replaced text with \cmd{:\%s/task/service/g} and saved with \cmd{:wq}.
 \end{itemize}
 
 % =========================================================
 % 7. Conclusion
 % =========================================================
 \section{Conclusion}
-In this lab, we developed confidence in viewing and editing files completely from the Linux terminal:
+Key takeaways from this lab:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item \textbf{Quick Inspection:} We used \cmd{cat} for quick output, \cmd{head} and \cmd{tail} to focus on file beginnings and ends, and \cmd{less} to comfortably scroll through larger logs.
-  \item \textbf{Beginner Friendly Editing with Nano:} We learned that Nano offers a straightforward, modeless editor with clear on-screen shortcut keys for saving (\key{Ctrl+O}), cutting (\key{Ctrl+K}), pasting (\key{Ctrl+U}), searching (\key{Ctrl+W}), and replacing (\key{Ctrl+\textbackslash}).
-  \item \textbf{Powerful Modal Editing with Vim:} We learned Vim's modal design, switching between Normal and Insert modes, executing rapid line operations (\key{yy}, \key{dd}, \key{p}), undoing mistakes (\key{u}), redoing (\key{Ctrl+r}), replacing text with \cmd{:\%s}, and saving/quitting with \cmd{:wq}.
+  \item Inspected files using \cmd{cat}, \cmd{head}, \cmd{tail}, and \cmd{less}.
+  \item Edited text with simple shortcuts in GNU Nano.
+  \item Edited text with modal commands, copy/paste, and search/replace in Vim.
 \end{enumerate}
-These command-line skills are fundamental for troubleshooting systems and managing Linux environments effectively.
 
 \end{document}

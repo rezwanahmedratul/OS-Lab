@@ -146,40 +146,18 @@
 % 1. Objective
 % =========================================================
 \section{Objective}
-The objective of this lab is to learn how to use the Linux terminal for daily file and directory tasks. By completing this experiment, we aim to:
+To practice basic Linux navigation and file listing commands:
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Learn who is currently logged in using \cmd{whoami} and find our current location using \cmd{pwd}.
-  \item Move between folders easily using \cmd{cd} and return home using \cmd{cd \textasciitilde}.
-  \item View regular files, hidden files, and file details (like size and permissions) using \cmd{ls} and its flags (\cmd{-l}, \cmd{-a}, \cmd{-lh}, \cmd{-la}).
+  \item Check current user (\cmd{whoami}) and location (\cmd{pwd}).
+  \item Move between directories (\cmd{cd}, \cmd{cd \textasciitilde}).
+  \item List files, hidden files, and details (\cmd{ls}, \cmd{-l}, \cmd{-a}, \cmd{-lh}, \cmd{-la}).
 \end{itemize}
 
 % =========================================================
-% 2. Equipment / Software Requirements
-% =========================================================
-\section{Equipment / Software Requirements}
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\linewidth}{lXlX}
-\toprule
-\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
-\midrule
-\textbf{Operating System} & Linux (NixOS 26.11, Kernel 6.12) & \textbf{Host Machine} & \texttt{firefly} \\
-\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 / Zsh \\
-\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Core Tools} & GNU Coreutils (\texttt{ls}, \texttt{pwd}, \texttt{whoami}) \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-8pt}
-
-% =========================================================
-% 3. Theoretical Background
+% 2. Theoretical Background
 % =========================================================
 \section{Theoretical Background}
-In Linux, all files and folders (called directories) are organized in a single upside-down tree structure. The very top folder is called the root folder, written as \cmd{/}. 
-
-When a user logs in, they start in their personal home directory (\texttt{/home/ratul}), which is also written as a tilde (\cmd{\textasciitilde}). The terminal allows us to move around this tree and manage files using simple text commands.
+Linux uses a single directory tree starting at root (\cmd{/}). Users start in home (\cmd{\textasciitilde}). Commands navigate and inspect files.
 
 \subsection{Commands Practiced in This Lab}
 \vspace{-2pt}
@@ -190,22 +168,22 @@ When a user logs in, they start in their personal home directory (\texttt{/home/
 \toprule
 \textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
 \midrule
-\cmd{whoami} & \texttt{whoami} & Prints the username of the logged-in user. & \texttt{whoami} \\
-\cmd{pwd} & \texttt{pwd} & Prints the full path of the current folder you are inside. & \texttt{pwd} \\
-\cmd{cd} & \texttt{cd [folder]} & Moves into the specified folder. & \texttt{cd lab\_demo} \\
-\cmd{cd \textasciitilde} & \texttt{cd \textasciitilde} & Takes you straight back to your home folder. & \texttt{cd \textasciitilde} \\
-\cmd{ls} & \texttt{ls} & Lists the visible files and folders in the current folder. & \texttt{ls} \\
-\cmd{ls -l} & \texttt{ls -l} & Long listing: shows file details (permissions, size, date). & \texttt{ls -l} \\
-\cmd{ls -a} & \texttt{ls -a} & Shows \textit{all} files, including hidden files starting with a dot (\texttt{.}). & \texttt{ls -a} \\
-\cmd{ls -lh} & \texttt{ls -lh} & Shows file details with easy-to-read sizes (K, M, G). & \texttt{ls -lh} \\
-\cmd{ls -la} & \texttt{ls -la} & Shows all files (including hidden ones) with full details. & \texttt{ls -la} \\
+\cmd{whoami} & \texttt{whoami} & Print current username. & \texttt{whoami} \\
+\cmd{pwd} & \texttt{pwd} & Print current directory path. & \texttt{pwd} \\
+\cmd{cd} & \texttt{cd [dir]} & Move to directory. & \texttt{cd lab\_demo} \\
+\cmd{cd \textasciitilde} & \texttt{cd \textasciitilde} & Go to home directory. & \texttt{cd \textasciitilde} \\
+\cmd{ls} & \texttt{ls} & List visible files and folders. & \texttt{ls} \\
+\cmd{ls -l} & \texttt{ls -l} & Long listing with file details. & \texttt{ls -l} \\
+\cmd{ls -a} & \texttt{ls -a} & List all files, including hidden (\texttt{.} prefix). & \texttt{ls -a} \\
+\cmd{ls -lh} & \texttt{ls -lh} & Show human-readable sizes (K, M, G). & \texttt{ls -lh} \\
+\cmd{ls -la} & \texttt{ls -la} & Show all files with full details. & \texttt{ls -la} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 \vspace{-6pt}
 
 \subsection{Understanding File Details (\texttt{ls -l})}
-When we run \cmd{ls -l}, Linux shows seven pieces of information for each file:
+Running \cmd{ls -l} shows six key fields for each file:
 \vspace{-2pt}
 \begin{table}[h!]
 \centering\footnotesize
@@ -214,12 +192,32 @@ When we run \cmd{ls -l}, Linux shows seven pieces of information for each file:
 \toprule
 \textbf{Field} & \textbf{Simple Explanation} \\
 \midrule
-\textbf{1. File Type \& Permissions} & 10 letters (e.g., \texttt{-rw-r--r--}): the first letter shows if it is a normal file (\texttt{-}) or a directory (\texttt{d}). The next 9 letters show read (\texttt{r}), write (\texttt{w}), and execute (\texttt{x}) rights for owner, group, and others. \\
-\textbf{2. Links} & How many directory links point to this file. \\
-\textbf{3. Owner \& Group} & Who owns the file (\texttt{ratul}) and which group it belongs to (\texttt{users}). \\
-\textbf{4. File Size} & How big the file is in bytes (or in KB/MB when using \cmd{-h}). \\
-\textbf{5. Date \& Time} & The day and time the file was last edited. \\
-\textbf{6. File Name} & The name of the file or folder. \\
+\textbf{1. File Type \& Permissions} & Type (\texttt{-} file, \texttt{d} folder) and access rights (\texttt{rwx}) for owner, group, others. \\
+\textbf{2. Links} & Number of hard links. \\
+\textbf{3. Owner \& Group} & User and group that own the file. \\
+\textbf{4. File Size} & Size in bytes (or KB/MB with \cmd{-h}). \\
+\textbf{5. Date \& Time} & Last modification timestamp. \\
+\textbf{6. File Name} & Name of file or folder. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+% =========================================================
+% 3. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 / Zsh \\
+\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Core Tools} & GNU Coreutils (\texttt{ls}, \texttt{pwd}, \texttt{whoami}) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -227,65 +225,18 @@ When we run \cmd{ls -l}, Linux shows seven pieces of information for each file:
 \newpage
 
 % =========================================================
-% 4. Demo Folder Setup
-% =========================================================
-\section{Equipment / Demo Directory Setup}
-To practice these commands, we set up a demo folder called \cmd{lab\_demo} inside \texttt{/home/ratul}. It contains subfolders, regular documents, a script, and hidden files:
-
-\begin{center}
-\begin{tikzpicture}[
-  x=1cm, y=1cm,
-  dirbox/.style={draw=primary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3.5pt},
-  subbox/.style={draw=secondary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3pt},
-  filebox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=2.5pt},
-  hiddenbox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, text=termhidden, inner sep=2.5pt}
-]
-  % Root node
-  \node[dirbox] (root) at (0, 0) {/home/ratul/lab\_demo/};
-
-  % Branches
-  \node[subbox] (bdir) at (-5.4, -0.95) {backups/};
-  \node[filebox] (iso)  at (-5.4, -1.65) {system.iso (4.8M)};
-
-  \node[subbox] (sdir) at (-2.3, -0.95) {scripts/};
-  \node[filebox] (sh)   at (-2.3, -1.65) {\textcolor{termuser}{\textbf{monitor.sh}}};
-
-  \node[filebox] (f1)   at (0.7, -0.95) {data.csv (14M)};
-  \node[filebox] (f2)   at (0.7, -1.65) {notes.txt (1.4K)};
-
-  \node[filebox] (f3)   at (3.5, -0.95) {report.pdf (256K)};
-  \node[hiddenbox] (h1) at (3.5, -1.65) {.lab\_profile};
-
-  \node[hiddenbox] (h2) at (6.0, -0.95) {.secret.key};
-  \node[filebox] (note) at (6.0, -1.65) {\textcolor{darkslate}{(permission: 600)}};
-
-  % Arrows
-  \draw[->, thick, darkslate] (root.south) -| (bdir.north);
-  \draw[->, thick, darkslate] (bdir.south) -- (iso.north);
-  \draw[->, thick, darkslate] (root.south) -| (sdir.north);
-  \draw[->, thick, darkslate] (sdir.south) -- (sh.north);
-  \draw[->, thick, darkslate] (root.south) -| (f1.north);
-  \draw[->, thick, darkslate] (root.south) -| (f3.north);
-  \draw[->, thick, darkslate] (root.south) -| (h2.north);
-\end{tikzpicture}
-\end{center}
-\vspace{-8pt}
-
-% =========================================================
 % 5. Procedure / Steps
 % =========================================================
 \section{Procedure / Steps}
-We ran the commands in order through the following simple steps:
+Steps followed in this experiment:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Checked current user with \cmd{whoami} and checked current folder with \cmd{pwd}.
-  \item Listed folders inside our home directory using \cmd{ls}.
-  \item Entered the demo directory using \cmd{cd lab\_demo} and confirmed the new location with \cmd{pwd}.
-  \item Listed regular files using \cmd{ls}.
-  \item Listed all files including hidden files using \cmd{ls -a}.
-  \item Checked full file details and byte sizes using \cmd{ls -l}.
-  \item Checked easy-to-read file sizes (KB, MB) using \cmd{ls -lh}.
-  \item Checked all files (including hidden) with complete details using \cmd{ls -la}.
-  \item Returned directly back to the home directory using \cmd{cd \textasciitilde} and verified with \cmd{pwd}.
+  \item Check current user (\cmd{whoami}) and directory path (\cmd{pwd}).
+  \item List home directory contents (\cmd{ls}).
+  \item Move into demo folder (\cmd{cd lab\_demo}) and verify with \cmd{pwd}.
+  \item List normal files (\cmd{ls}) and hidden files (\cmd{ls -a}).
+  \item Inspect file details in bytes (\cmd{ls -l}) and readable units (\cmd{ls -lh}).
+  \item List all files with full attributes (\cmd{ls -la}).
+  \item Return to home directory (\cmd{cd \textasciitilde}).
 \end{enumerate}
 
 % =========================================================
@@ -343,9 +294,9 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 
 \paragraph{Explanation of Session 1 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{whoami} and \cmd{pwd}: Showed that we are logged in as user \texttt{ratul} and our starting location is \texttt{/home/ratul}.
-  \item \cmd{cd lab\_demo}: Moved us into the \texttt{lab\_demo} directory. The terminal prompt automatically updated from \texttt{\textasciitilde} to \texttt{\textasciitilde/lab\_demo}.
-  \item \cmd{ls} vs \cmd{ls -a}: The normal \cmd{ls} command only showed visible files. The \cmd{ls -a} command revealed hidden files like \texttt{.lab\_profile} and \texttt{.secret.key}, along with \texttt{.} (current folder) and \texttt{..} (parent folder).
+  \item \cmd{whoami} and \cmd{pwd}: Identified user \texttt{ratul} at \texttt{/home/ratul}.
+  \item \cmd{cd lab\_demo}: Moved into folder; prompt updated to \texttt{\textasciitilde/lab\_demo}.
+  \item \cmd{ls} vs \cmd{ls -a}: \cmd{ls} shows visible files; \cmd{-a} reveals hidden files (\texttt{.lab\_profile}, \texttt{.secret.key}) and directory links (\texttt{.}, \texttt{..}).
 \end{itemize}
 
 \newpage
@@ -428,21 +379,20 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 
 \paragraph{Explanation of Session 2 Results:}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \cmd{ls -l} vs \cmd{ls -lh}: \cmd{ls -l} gives the exact file size in bytes (like \texttt{14680064} bytes for \texttt{data.csv}). Adding \cmd{-h} turns that big number into \textbf{\texttt{14M}}, making it very easy for humans to read.
-  \item \cmd{ls -la}: Shows complete details for every file, including hidden ones. For example, we can see that \texttt{.secret.key} has strict permissions (\texttt{-rw-------}), meaning only \texttt{ratul} can read it.
-  \item \cmd{cd \textasciitilde}: Instantly brought us back to our home directory (\texttt{/home/ratul}) in one quick step.
+  \item \cmd{ls -l} vs \cmd{ls -lh}: \cmd{-l} shows raw bytes; \cmd{-lh} converts to human-readable units (\texttt{14M}).
+  \item \cmd{ls -la}: Shows full details, including permissions on hidden files (\texttt{.secret.key}).
+  \item \cmd{cd \textasciitilde}: Returned to home directory (\texttt{/home/ratul}).
 \end{itemize}
 
 % =========================================================
 % 7. Conclusion
 % =========================================================
 \section{Conclusion}
-In this lab, we successfully practiced the most important basic Linux terminal commands. We learned:
+Key takeaways from this lab:
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item How to find our current location with \cmd{pwd} and move between folders using \cmd{cd} and \cmd{cd \textasciitilde}.
-  \item How to use flags with \cmd{ls} to view file sizes easily (\cmd{-lh}) and uncover hidden files (\cmd{-a} and \cmd{-la}).
-  \item How Linux shows file permissions, ownership, and last modified dates.
+  \item Navigated directories using \cmd{pwd}, \cmd{cd}, and \cmd{cd \textasciitilde}.
+  \item Generated standard, hidden, and detailed file listings using \cmd{ls} options.
+  \item Identified file permissions, ownership, sizes, and timestamps.
 \end{enumerate}
-These commands make working in the Linux terminal fast, simple, and comfortable.
 
 \end{document}
