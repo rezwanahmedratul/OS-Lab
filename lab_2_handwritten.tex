@@ -1,0 +1,413 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=1.8cm,bottom=1.8cm,left=1.8cm,right=1.8cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{calc,shapes.geometric,backgrounds}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=primary,urlcolor=secondary]{hyperref}
+
+% =========================================================
+% Color Palette
+% =========================================================
+\definecolor{primary}{RGB}{30, 58, 138}        % Deep navy blue
+\definecolor{secondary}{RGB}{2, 132, 199}      % Cyan/Sky blue
+\definecolor{darkslate}{RGB}{51, 65, 85}       % Slate grey
+\definecolor{bordergray}{RGB}{209, 213, 219}   % Light grey border
+\definecolor{boxbg}{RGB}{248, 250, 252}        % Light subtle card bg
+
+% Terminal Colors (Light Grey Theme)
+\definecolor{termbg}{RGB}{246, 248, 250}       % Light grey background
+\definecolor{termbar}{RGB}{229, 231, 235}      % Slightly darker grey title bar
+\definecolor{termborder}{RGB}{209, 213, 219}   % Border grey
+\definecolor{termtext}{RGB}{31, 41, 55}        % Dark charcoal text
+\definecolor{termuser}{RGB}{22, 101, 52}       % Dark green for user
+\definecolor{termhost}{RGB}{21, 128, 61}       % Green for host
+\definecolor{termpath}{RGB}{29, 78, 216}       % Blue for directory path
+\definecolor{termcmd}{RGB}{17, 24, 39}         % Bold black for commands
+\definecolor{termout}{RGB}{55, 65, 81}         % Clear dark grey for outputs
+\definecolor{termdir}{RGB}{37, 99, 235}        % Blue for directories
+\definecolor{termfile}{RGB}{31, 41, 55}        % Dark for regular files
+\definecolor{termhidden}{RGB}{107, 114, 128}   % Muted grey for hidden files
+\definecolor{termsize}{RGB}{180, 83, 9}        % Amber for sizes
+\definecolor{termperm}{RGB}{79, 70, 229}       % Indigo for permissions
+
+% =========================================================
+% Section Headings (Clean, No Underline)
+% =========================================================
+\titleformat{\section}
+  {\color{primary}\large\bfseries\sffamily}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+
+\titleformat{\subsection}
+  {\color{secondary}\normalsize\bfseries\sffamily}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{3pt}
+
+% =========================================================
+% Headers and Footers (Completely Clean Footers)
+% =========================================================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\small\sffamily\color{darkslate} Operating Systems Lab}
+\fancyhead[R]{\small\sffamily\color{darkslate} Lab Report: Linux Navigation}
+\fancyfoot{}
+
+% First page style: no header at top, no footer at bottom
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% =========================================================
+% Terminal Window Macro (Light Grey with Crisp Edges)
+% =========================================================
+\newcommand{\termprompt}[1][\textasciitilde]{%
+  \textbf{\textcolor{termuser}{ratul}}\textcolor{termtext}{@}\textbf{\textcolor{termhost}{firefly}}\textcolor{termtext}{:}\textbf{\textcolor{termpath}{#1}}\textcolor{termcmd}{\$}\ %
+}
+
+\newcommand{\terminalwindow}[3][\linewidth]{%
+\begin{center}
+\begin{tikzpicture}
+  % 1. Terminal text on main layer
+  \node[
+      text=termtext,
+      font=\ttfamily\fontsize{7.2}{9.2}\selectfont,
+      align=left,
+      text width=\dimexpr#1-0.95cm\relax,
+      inner xsep=7pt,
+      inner ysep=7pt,
+      anchor=north west
+  ] (body) at (0.32cm, -0.56cm) {#3};
+
+  % Coordinates
+  \coordinate (topleft) at (0, 0);
+  \coordinate (bottomright) at ($(body.south -| #1, 0) + (0, -6pt)$);
+  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(#1, 0) + (0, -0.28cm)$);
+
+  % 2. Background and Title bar on background layer
+  \begin{scope}[on background layer]
+    % Light grey terminal body
+    \fill[termbg, rounded corners=6pt] (topleft) rectangle (bottomright);
+
+    % Title bar (clipped to match rounded top corners)
+    \begin{scope}
+      \clip[rounded corners=6pt] (topleft) rectangle (bottomright);
+      \fill[termbar] (topleft) rectangle (#1, -0.56cm);
+      \draw[termborder, line width=0.5pt] (0, -0.56cm) -- (#1, -0.56cm);
+    \end{scope}
+
+    % Continuous outer border (smooth, no distortion)
+    \draw[termborder, line width=0.6pt, rounded corners=6pt] (topleft) rectangle (bottomright);
+  \end{scope}
+
+  % 3. Window control dots
+  \fill[red!80!black] (0.36cm, -0.28cm) circle (0.07cm);
+  \fill[yellow!80!black] (0.63cm, -0.28cm) circle (0.07cm);
+  \fill[green!75!black] (0.90cm, -0.28cm) circle (0.07cm);
+
+  % 4. Centered terminal title
+  \node[
+      text=gray!40!black,
+      font=\sffamily\bfseries\fontsize{7.2}{8}\selectfont,
+      anchor=center
+  ] at (titlecenter) {#2};
+\end{tikzpicture}
+\end{center}
+\vspace{-6pt}
+}
+
+\newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
+
+\begin{document}
+\thispagestyle{firstpage}
+
+% =========================================================
+% Title: Only Experiment Title at the Top
+% =========================================================
+\begin{center}
+  {\Large\bfseries\sffamily\color{primary} Experiment Title: Practice of Basic Linux Terminal Commands}\\[3pt]
+  {\normalsize\sffamily\textbf{Topic:} File and Directory Navigation in Linux Terminal}
+\end{center}
+\vspace{2pt}
+
+% =========================================================
+% 1. Objective (Blank Space for Handwritten Text)
+% =========================================================
+\section{Objective}
+\vspace*{3.2cm}
+
+% =========================================================
+% 2. Equipment / Software Requirements (Blank Table for Handwriting)
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{|p{3.2cm}|X|p{3.2cm}|X|}
+\hline
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+% =========================================================
+% 3. Theoretical Background (Blank Tables for Handwriting)
+% =========================================================
+\section{Theoretical Background}
+\vspace*{1.2cm}
+
+\subsection{Commands Practiced in This Lab}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{|p{2.2cm}|p{2.2cm}|X|p{2.8cm}|}
+\hline
+\textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
+\hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\rule{0pt}{14pt} & & & \\ \hline
+\end{tabularx}
+\end{table}
+\vspace{-4pt}
+
+\subsection{Understanding File Details (\texttt{ls -l})}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.45}
+\begin{tabularx}{\linewidth}{|p{4.2cm}|X|}
+\hline
+\textbf{Field} & \textbf{Simple Explanation} \\
+\hline
+\rule{0pt}{14pt} & \\ \hline
+\rule{0pt}{14pt} & \\ \hline
+\rule{0pt}{14pt} & \\ \hline
+\rule{0pt}{14pt} & \\ \hline
+\rule{0pt}{14pt} & \\ \hline
+\rule{0pt}{14pt} & \\ \hline
+\end{tabularx}
+\end{table}
+
+\newpage
+
+% =========================================================
+% 4. Demo Folder Setup (Diagram Kept)
+% =========================================================
+\section{Equipment / Demo Directory Setup}
+\vspace{-4pt}
+\begin{center}
+\begin{tikzpicture}[
+  x=1cm, y=1cm,
+  dirbox/.style={draw=primary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3.5pt},
+  subbox/.style={draw=secondary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3pt},
+  filebox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=2.5pt},
+  hiddenbox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, text=termhidden, inner sep=2.5pt}
+]
+  % Root node
+  \node[dirbox] (root) at (0, 0) {/home/ratul/lab\_demo/};
+
+  % Branches
+  \node[subbox] (bdir) at (-5.4, -0.95) {backups/};
+  \node[filebox] (iso)  at (-5.4, -1.65) {system.iso (4.8M)};
+
+  \node[subbox] (sdir) at (-2.3, -0.95) {scripts/};
+  \node[filebox] (sh)   at (-2.3, -1.65) {\textcolor{termuser}{\textbf{monitor.sh}}};
+
+  \node[filebox] (f1)   at (0.7, -0.95) {data.csv (14M)};
+  \node[filebox] (f2)   at (0.7, -1.65) {notes.txt (1.4K)};
+
+  \node[filebox] (f3)   at (3.5, -0.95) {report.pdf (256K)};
+  \node[hiddenbox] (h1) at (3.5, -1.65) {.lab\_profile};
+
+  \node[hiddenbox] (h2) at (6.0, -0.95) {.secret.key};
+  \node[filebox] (note) at (6.0, -1.65) {\textcolor{darkslate}{(permission: 600)}};
+
+  % Arrows
+  \draw[->, thick, darkslate] (root.south) -| (bdir.north);
+  \draw[->, thick, darkslate] (bdir.south) -- (iso.north);
+  \draw[->, thick, darkslate] (root.south) -| (sdir.north);
+  \draw[->, thick, darkslate] (sdir.south) -- (sh.north);
+  \draw[->, thick, darkslate] (root.south) -| (f1.north);
+  \draw[->, thick, darkslate] (root.south) -| (f3.north);
+  \draw[->, thick, darkslate] (root.south) -| (h2.north);
+\end{tikzpicture}
+\end{center}
+\vspace{-6pt}
+
+% =========================================================
+% 5. Procedure / Steps (Blank Space for Handwritten Steps)
+% =========================================================
+\section{Procedure / Steps}
+\vspace*{4.2cm}
+
+% =========================================================
+% 6. Result / Output Demonstration (Session 1)
+% =========================================================
+\section{Result / Output Demonstration}
+
+\subsection{Session 1: Finding Our Location, Moving Folders, and Listing Files}
+
+\terminalwindow{ratul@firefly: \textasciitilde\ \textemdash\ bash}{
+% Command 1: whoami
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{whoami}}
+
+\textcolor{termout}{ratul}
+
+\vspace{0.14cm}
+% Command 2: pwd
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{pwd}}
+
+\textcolor{termout}{/home/ratul}
+
+\vspace{0.14cm}
+% Command 3: ls in home
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{ls}}
+
+\textcolor{termdir}{\textbf{Desktop}}\ \ \ \ \textcolor{termdir}{\textbf{Documents}}\ \ \ \ \textcolor{termdir}{\textbf{Downloads}}\ \ \ \ \textcolor{termdir}{\textbf{lab\_demo}}\ \ \ \ \textcolor{termdir}{\textbf{Music}}\ \ \ \ \textcolor{termdir}{\textbf{Pictures}}\ \ \ \ \textcolor{termdir}{\textbf{Videos}}
+
+\vspace{0.14cm}
+% Command 4: cd lab_demo
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{cd lab\_demo}}
+
+\vspace{0.08cm}
+% Command 5: pwd inside demo
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{pwd}}
+
+\textcolor{termout}{/home/ratul/lab\_demo}
+
+\vspace{0.14cm}
+% Command 6: ls inside demo
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls}}
+
+\textcolor{termdir}{\textbf{backups}}\ \ \ \ \textcolor{termfile}{data.csv}\ \ \ \ \textcolor{termfile}{notes.txt}\ \ \ \ \textcolor{termfile}{report.pdf}\ \ \ \ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.14cm}
+% Command 7: ls -a
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -a}}
+
+\textcolor{termhidden}{\textbf{.}}\ \ \ \ \textcolor{termhidden}{\textbf{..}}\ \ \ \ \textcolor{termhidden}{.lab\_profile}\ \ \ \ \textcolor{termhidden}{.secret.key}\ \ \ \ \textcolor{termdir}{\textbf{backups}}\ \ \ \ \textcolor{termfile}{data.csv}\ \ \ \ \textcolor{termfile}{notes.txt}\ \ \ \ \textcolor{termfile}{report.pdf}\ \ \ \ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.10cm}
+% Active cursor
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\vspace{6pt}
+\noindent\textbf{\textsf{\color{secondary} Explanation of Session 1 Results:}}
+\vspace*{4.0cm}
+
+\newpage
+
+% =========================================================
+% 6. Result / Output Demonstration (Session 2)
+% =========================================================
+\subsection{Session 2: Inspecting File Details, Easy Sizes, and Returning Home}
+
+\terminalwindow{ratul@firefly: \textasciitilde/lab\_demo\ \textemdash\ bash}{
+% Command 8: ls -l
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -l}}
+
+\textcolor{termout}{total 23568}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:15\ \textcolor{termdir}{\textbf{backups}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ 14680064\ Oct\ \ 8\ 10:20\ \textcolor{termfile}{data.csv}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 1433\ Oct\ \ 8\ 10:22\ \textcolor{termfile}{notes.txt}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ 262144\ Oct\ \ 8\ 10:25\ \textcolor{termfile}{report.pdf}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.14cm}
+% Command 9: ls -lh
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -lh}}
+
+\textcolor{termout}{total 24M}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{4.0K}}\ Oct\ \ 8\ 10:15\ \textcolor{termdir}{\textbf{backups}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{\ 14M}}\ Oct\ \ 8\ 10:20\ \textcolor{termfile}{data.csv}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{1.4K}}\ Oct\ \ 8\ 10:22\ \textcolor{termfile}{notes.txt}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{256K}}\ Oct\ \ 8\ 10:25\ \textcolor{termfile}{report.pdf}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{4.0K}}\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.14cm}
+% Command 10: ls -la
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -la}}
+
+\textcolor{termout}{total 23580}
+
+\textcolor{termperm}{drwxr-xr-x}\ 4\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:28\ \textcolor{termhidden}{\textbf{.}}
+
+\textcolor{termperm}{drwx------}\ 9\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 09:50\ \textcolor{termhidden}{\textbf{..}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ \ 342\ Oct\ \ 8\ 10:12\ \textcolor{termhidden}{.lab\_profile}
+
+\textcolor{termperm}{-rw-------}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ \ \ 64\ Oct\ \ 8\ 10:14\ \textcolor{termhidden}{.secret.key}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:15\ \textcolor{termdir}{\textbf{backups}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ 14680064\ Oct\ \ 8\ 10:20\ \textcolor{termfile}{data.csv}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 1433\ Oct\ \ 8\ 10:22\ \textcolor{termfile}{notes.txt}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ 262144\ Oct\ \ 8\ 10:25\ \textcolor{termfile}{report.pdf}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.14cm}
+% Command 11: cd ~
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{cd \textasciitilde}}
+
+\vspace{0.08cm}
+% Command 12: pwd
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{pwd}}
+
+\textcolor{termout}{/home/ratul}
+
+\vspace{0.10cm}
+% Final prompt
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\vspace{4pt}
+\noindent\textbf{\textsf{\color{secondary} Explanation of Session 2 Results:}}
+\vspace*{3.8cm}
+
+% =========================================================
+% 7. Conclusion (Blank Space for Handwritten Conclusion)
+% =========================================================
+\section{Conclusion}
+\vspace*{5.0cm}
+
+\end{document}

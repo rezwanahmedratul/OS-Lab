@@ -8,14 +8,15 @@
 \geometry{margin=1in}
 
 % =========================================================
-% Terminal colors
+% Terminal colors (Light Grey Theme)
 % =========================================================
-\definecolor{terminalbg}{RGB}{24,24,24}
-\definecolor{terminalbar}{RGB}{45,45,45}
-\definecolor{terminaltext}{RGB}{235,235,235}
-\definecolor{promptcolor}{RGB}{80,250,123}
-\definecolor{commandcolor}{RGB}{255,255,255}
-\definecolor{outputcolor}{RGB}{220,220,220}
+\definecolor{terminalbg}{RGB}{246,248,250}
+\definecolor{terminalbar}{RGB}{229,231,235}
+\definecolor{terminalborder}{RGB}{209,213,219}
+\definecolor{terminaltext}{RGB}{31,41,55}
+\definecolor{promptcolor}{RGB}{22,101,52}
+\definecolor{commandcolor}{RGB}{17,24,39}
+\definecolor{outputcolor}{RGB}{55,65,81}
 
 % =========================================================
 % Terminal Window
@@ -34,33 +35,17 @@
 \def\titleheight{0.65cm}
 
 % ---------------------------------------------------------
-% Main terminal background
+% Window background and clipped title bar
 % ---------------------------------------------------------
-\node[
-    fill=terminalbg,
-    rounded corners=5pt,
-    minimum width=\terminalwidth,
-    minimum height=\terminalheight,
-    anchor=north west,
-    inner sep=0pt
-] at (0,0) {};
+\begin{scope}
+  \clip[rounded corners=6pt] (0,0) rectangle (\terminalwidth,-\terminalheight);
+  \fill[terminalbg] (0,0) rectangle (\terminalwidth,-\terminalheight);
+  \fill[terminalbar] (0,0) rectangle (\terminalwidth,-\titleheight);
+  \draw[terminalborder, line width=0.5pt] (0,-\titleheight) -- (\terminalwidth,-\titleheight);
+\end{scope}
 
-% ---------------------------------------------------------
-% Title bar
-% ---------------------------------------------------------
-\path[
-    fill=terminalbar,
-    rounded corners=5pt
-]
-(0,0)
-rectangle
-(\terminalwidth,-\titleheight);
-
-% Cover the lower rounded corners of title bar
-\fill[terminalbar]
-(0,-0.35cm)
-rectangle
-(\terminalwidth,-\titleheight);
+% Continuous outer border (eliminates all edge distortion)
+\draw[terminalborder, line width=0.6pt, rounded corners=6pt] (0,0) rectangle (\terminalwidth,-\terminalheight);
 
 % ---------------------------------------------------------
 % Window buttons
@@ -73,7 +58,7 @@ circle (0.09cm);
 (0.65cm,-0.325cm)
 circle (0.09cm);
 
-\fill[green!70!black]
+\fill[green!75!black]
 (0.95cm,-0.325cm)
 circle (0.09cm);
 
@@ -81,8 +66,8 @@ circle (0.09cm);
 % Terminal title
 % ---------------------------------------------------------
 \node[
-    text=white,
-    font=\sffamily\small
+    text=gray!40!black,
+    font=\sffamily\bfseries\small
 ]
 at (0.475\textwidth,-0.325cm)
 {ratul@firefly: \textasciitilde};
