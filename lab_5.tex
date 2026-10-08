@@ -1,0 +1,422 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=1.8cm,bottom=1.8cm,left=1.8cm,right=1.8cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{calc,shapes.geometric,backgrounds}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=primary,urlcolor=secondary]{hyperref}
+
+% =========================================================
+% Color Palette
+% =========================================================
+\definecolor{primary}{RGB}{30, 58, 138}        % Deep navy blue
+\definecolor{secondary}{RGB}{2, 132, 199}      % Cyan/Sky blue
+\definecolor{darkslate}{RGB}{51, 65, 85}       % Slate grey
+\definecolor{bordergray}{RGB}{209, 213, 219}   % Light grey border
+\definecolor{boxbg}{RGB}{248, 250, 252}        % Light subtle card bg
+
+% Terminal Colors (Light Grey Theme)
+\definecolor{termbg}{RGB}{246, 248, 250}       % Light grey background
+\definecolor{termbar}{RGB}{229, 231, 235}      % Slightly darker grey title bar
+\definecolor{termborder}{RGB}{209, 213, 219}   % Border grey
+\definecolor{termtext}{RGB}{31, 41, 55}        % Dark charcoal text
+\definecolor{termuser}{RGB}{22, 101, 52}       % Dark green for user
+\definecolor{termhost}{RGB}{21, 128, 61}       % Green for host
+\definecolor{termpath}{RGB}{29, 78, 216}       % Blue for directory path
+\definecolor{termcmd}{RGB}{17, 24, 39}         % Bold black for commands
+\definecolor{termout}{RGB}{55, 65, 81}         % Clear dark grey for outputs
+\definecolor{termdir}{RGB}{37, 99, 235}        % Blue for directories
+\definecolor{termfile}{RGB}{31, 41, 55}        % Dark for regular files
+\definecolor{termhidden}{RGB}{107, 114, 128}   % Muted grey for hidden files
+\definecolor{termsize}{RGB}{180, 83, 9}        % Amber for sizes
+\definecolor{termperm}{RGB}{79, 70, 229}       % Indigo for permissions
+\definecolor{termmatch}{RGB}{220, 38, 38}      % Red highlight for grep search matches
+
+% =========================================================
+% Section Headings (Clean, No Underline)
+% =========================================================
+\titleformat{\section}
+  {\color{primary}\large\bfseries\sffamily}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+
+\titleformat{\subsection}
+  {\color{secondary}\normalsize\bfseries\sffamily}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+
+% =========================================================
+% Headers and Footers (Completely Clean Footers)
+% =========================================================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\small\sffamily\color{darkslate} Operating Systems Lab}
+\fancyhead[R]{\small\sffamily\color{darkslate} Lab Report: Searching Files \& Content}
+\fancyfoot{}
+
+% First page style: no header at top, no footer at bottom
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% =========================================================
+% Terminal Window Macro (Light Grey with Crisp Edges)
+% =========================================================
+\newcommand{\termprompt}[1][\textasciitilde]{%
+  \textbf{\textcolor{termuser}{ratul}}\textcolor{termtext}{@}\textbf{\textcolor{termhost}{firefly}}\textcolor{termtext}{:}\textbf{\textcolor{termpath}{#1}}\textcolor{termcmd}{\$}\ %
+}
+
+\newcommand{\terminalwindow}[3][\linewidth]{%
+\begin{center}
+\begin{tikzpicture}
+  % 1. Terminal text on main layer
+  \node[
+      text=termtext,
+      font=\ttfamily\fontsize{7.2}{9.2}\selectfont,
+      align=left,
+      text width=\dimexpr#1-0.95cm\relax,
+      inner xsep=7pt,
+      inner ysep=7pt,
+      anchor=north west
+  ] (body) at (0.32cm, -0.56cm) {#3};
+
+  % Coordinates
+  \coordinate (topleft) at (0, 0);
+  \coordinate (bottomright) at ($(body.south -| #1, 0) + (0, -6pt)$);
+  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(#1, 0) + (0, -0.28cm)$);
+
+  % 2. Background and Title bar on background layer
+  \begin{scope}[on background layer]
+    % Light grey terminal body
+    \fill[termbg, rounded corners=6pt] (topleft) rectangle (bottomright);
+
+    % Title bar (clipped to match rounded top corners)
+    \begin{scope}
+      \clip[rounded corners=6pt] (topleft) rectangle (bottomright);
+      \fill[termbar] (topleft) rectangle (#1, -0.56cm);
+      \draw[termborder, line width=0.5pt] (0, -0.56cm) -- (#1, -0.56cm);
+    \end{scope}
+
+    % Continuous outer border (smooth, no distortion)
+    \draw[termborder, line width=0.6pt, rounded corners=6pt] (topleft) rectangle (bottomright);
+  \end{scope}
+
+  % 3. Window control dots
+  \fill[red!80!black] (0.36cm, -0.28cm) circle (0.07cm);
+  \fill[yellow!80!black] (0.63cm, -0.28cm) circle (0.07cm);
+  \fill[green!75!black] (0.90cm, -0.28cm) circle (0.07cm);
+
+  % 4. Centered terminal title
+  \node[
+      text=gray!40!black,
+      font=\sffamily\bfseries\fontsize{7.2}{8}\selectfont,
+      anchor=center
+  ] at (titlecenter) {#2};
+\end{tikzpicture}
+\end{center}
+\vspace{-6pt}
+}
+
+\newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
+\newcommand{\hl}[1]{\textbf{\textcolor{termmatch}{#1}}}
+
+\begin{document}
+\thispagestyle{firstpage}
+
+% =========================================================
+% Title: Only Experiment Title at the Top
+% =========================================================
+\begin{center}
+  {\Large\bfseries\sffamily\color{primary} Experiment Title: Searching Files and Content in Linux Terminal}\\[3pt]
+  {\normalsize\sffamily\textbf{Topic:} Locating Files with \cmd{find} and Searching Text Content with \cmd{grep}}
+\end{center}
+\vspace{-4pt}
+
+% =========================================================
+% 1. Objective
+% =========================================================
+\section{Objective}
+The objective of this lab is to learn how to search for files and text efficiently in Linux systems. By completing this experiment, we aim to:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item Search and locate files by name, pattern, and file type using the \cmd{find} command.
+  \item Search for specific words and patterns inside text files using \cmd{grep}.
+  \item Master essential \cmd{grep} flags: case-insensitive search (\cmd{-i}), line numbers (\cmd{-n}), and inverted match (\cmd{-v}).
+  \item Recursively search across entire folder structures using \cmd{grep -r} and \cmd{grep -rn}.
+  \item Understand when to use \cmd{find} (finding files on disk) versus \cmd{grep} (finding text inside files).
+\end{itemize}
+
+% =========================================================
+% 2. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (NixOS 26.11 / Ubuntu 24.04) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} & \textbf{Command Shell} & GNU Bash 5.2 \\
+\textbf{Terminal Emulator} & Linux Terminal (Kitty / Ghostty) & \textbf{Search Tools} & GNU Findutils (\texttt{find}), GNU Grep (\texttt{grep}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-8pt}
+
+% =========================================================
+% 3. Theoretical Background
+% =========================================================
+\section{Theoretical Background}
+When working on large Linux systems with thousands of files, finding the right file or the right line of code manually is impossible. Linux provides two complementary search tools: \cmd{find} searches through the directory tree looking for \textit{files and folders}, while \cmd{grep} searches \textit{inside the text contents} of those files.
+
+\subsection{Commands Practiced in This Lab}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.06}
+\begin{tabularx}{\linewidth}{llp{5.4cm}X}
+\toprule
+\textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
+\midrule
+\cmd{find} & \texttt{find <dir> -name "<pattern>"} & Finds files matching a name pattern. & \texttt{find . -name "*.log"} \\
+\cmd{find -iname} & \texttt{find <dir> -iname "<pattern>"} & Case-insensitive search for file names. & \texttt{find . -iname "notes*"} \\
+\cmd{find -type} & \texttt{find <dir> -type <f|d>} & Filters results by type: \texttt{f} (file) or \texttt{d} (directory). & \texttt{find . -type d} \\
+\cmd{grep} & \texttt{grep "<text>" <file>} & Searches for exact text inside a specified file. & \texttt{grep "ERROR" server.log} \\
+\cmd{grep -i} & \texttt{grep -i "<text>" <file>} & Ignores uppercase/lowercase differences. & \texttt{grep -i "error" server.log} \\
+\cmd{grep -n} & \texttt{grep -n "<text>" <file>} & Displays the line number where match was found. & \texttt{grep -n "fail" server.log} \\
+\cmd{grep -v} & \texttt{grep -v "<text>" <file>} & Inverts match: shows lines that do \textit{not} match. & \texttt{grep -v "DEBUG" app.log} \\
+\cmd{grep -r} & \texttt{grep -r "<text>" <dir>} & Recursively searches all files inside folders. & \texttt{grep -r "database" .} \\
+\cmd{grep -rn} & \texttt{grep -rn "<text>" <dir>} & Recursive search showing file names and line numbers. & \texttt{grep -rn "TODO" .} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+\subsection{Key Differences: Find vs. Grep}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{p{2.8cm}Xp{4.2cm}}
+\toprule
+\textbf{Feature} & \textbf{\texttt{find}} & \textbf{\texttt{grep}} \\
+\midrule
+\textbf{Primary Goal} & Locating files and directories on disk. & Locating lines of text inside files. \\
+\textbf{Search Target} & File names, file sizes, permissions, modification dates. & Words, phrases, patterns inside file content. \\
+\textbf{Analogy} & Finding a specific book in a large library. & Finding a specific sentence inside a book. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\newpage
+
+% =========================================================
+% 4. Demo Directory Structure
+% =========================================================
+\section{Equipment / Demo Directory Setup}
+To practice search operations, we set up a mock project workspace called \cmd{lab5\_search} inside \texttt{/home/ratul}. It contains source code, configuration files, notes, and log files:
+
+\begin{center}
+\begin{tikzpicture}[
+  x=1cm, y=1cm,
+  dirbox/.style={draw=primary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3.5pt},
+  subbox/.style={draw=secondary, fill=boxbg, rounded corners=3pt, font=\ttfamily\footnotesize\bfseries, inner sep=3pt},
+  filebox/.style={draw=bordergray, fill=white, rounded corners=2pt, font=\ttfamily\scriptsize, inner sep=2.5pt}
+]
+  % Root node
+  \node[dirbox] (root) at (0, 0) {/home/ratul/lab5\_search/};
+
+  % Branches
+  \node[subbox] (docs)  at (-4.8, -0.95) {docs/};
+  \node[filebox] (f1)   at (-4.8, -1.65) {README.md};
+  \node[filebox] (f2)   at (-4.8, -2.35) {notes.txt};
+
+  \node[subbox] (src)   at (-0.5, -0.95) {src/};
+  \node[filebox] (f3)   at (-0.5, -1.65) {main.py \textcolor{termuser}{(database)}};
+  \node[filebox] (f4)   at (-0.5, -2.35) {utils.py \textcolor{termmatch}{(TODO: auth)}};
+
+  \node[subbox] (logs)  at (4.2, -0.95) {logs/};
+  \node[filebox] (f5)   at (4.2, -1.65) {server.log \textcolor{termmatch}{(ERROR, WARN)}};
+  \node[filebox] (f6)   at (4.2, -2.35) {error.log};
+
+  % Arrows
+  \draw[->, thick, darkslate] (root.south) -| (docs.north);
+  \draw[->, thick, darkslate] (docs.south) -- (f1.north);
+  \draw[->, thick, darkslate] (f1.south) -- (f2.north);
+  \draw[->, thick, darkslate] (root.south) -- (src.north);
+  \draw[->, thick, darkslate] (src.south) -- (f3.north);
+  \draw[->, thick, darkslate] (f3.south) -- (f4.north);
+  \draw[->, thick, darkslate] (root.south) -| (logs.north);
+  \draw[->, thick, darkslate] (logs.south) -- (f5.north);
+  \draw[->, thick, darkslate] (f5.south) -- (f6.north);
+\end{tikzpicture}
+\end{center}
+\vspace{-8pt}
+
+% =========================================================
+% 5. Procedure / Steps
+% =========================================================
+\section{Procedure / Steps}
+We practiced file and content searching using the following organized steps:
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item Initialized our practice directory \cmd{lab5\_search} and navigated inside.
+  \item Used \cmd{find} to locate all \texttt{.log} files anywhere in the project tree.
+  \item Searched case-insensitively for documentation files using \cmd{find . -iname "readme*"}.
+  \item Filtered search output by item type: directories only (\cmd{find . -type d}) and regular files only (\cmd{find . -type f}).
+  \item Searched for exact occurrences of \texttt{"ERROR"} inside \cmd{logs/server.log} using \cmd{grep}.
+  \item Performed case-insensitive text search using \cmd{grep -i} and printed line numbers with \cmd{grep -n}.
+  \item Inverted the search match using \cmd{grep -v} to filter out noisy routine messages.
+  \item Recursively searched all folders for configuration variables (\cmd{grep -r}) and developer comments (\cmd{grep -rn}).
+\end{enumerate}
+
+% =========================================================
+% 6. Result / Output Demonstration (Session 1)
+% =========================================================
+\section{Result / Output Demonstration}
+All commands were executed under user account \texttt{ratul} on host machine \texttt{firefly}.
+
+\subsection{Session 1: Finding Files by Name, Extension, and Type with \cmd{find}}
+
+\terminalwindow{ratul@firefly: \textasciitilde/lab5\_search\ \textemdash\ bash}{
+% Command 1: find by name
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{find . -name "*.log"}}
+
+\textcolor{termout}{./logs/error.log}
+
+\textcolor{termout}{./logs/server.log}
+
+\vspace{0.10cm}
+% Command 2: find by iname
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{find . -iname "readme*"}}
+
+\textcolor{termout}{./docs/README.md}
+
+\vspace{0.10cm}
+% Command 3: find only directories
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{find . -type d}}
+
+\textcolor{termdir}{.}
+
+\textcolor{termdir}{./docs}
+
+\textcolor{termdir}{./src}
+
+\textcolor{termdir}{./logs}
+
+\vspace{0.10cm}
+% Command 4: find only python files
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{find . -type f -name "*.py"}}
+
+\textcolor{termout}{./src/main.py}
+
+\textcolor{termout}{./src/utils.py}
+
+\vspace{0.08cm}
+% Active cursor
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\paragraph{Explanation of Session 1 Results:}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \cmd{find . -name "*.log"}: Walked through all subdirectories and printed paths of all log files. Quotes around \texttt{"*.log"} prevent the shell from expanding the wildcard prematurely.
+  \item \cmd{find . -iname "readme*"}: Found \texttt{README.md} even though we typed the pattern in lowercase.
+  \item \cmd{find . -type d}: Restricted the output strictly to folders, ignoring regular files.
+  \item \cmd{find . -type f -name "*.py"}: Combined the type filter (\cmd{-type f}) with an extension filter (\cmd{-name "*.py"}) to locate Python scripts.
+\end{itemize}
+
+\newpage
+
+% =========================================================
+% 6. Result / Output Demonstration (Session 2)
+% =========================================================
+\subsection{Session 2: Searching File Content with \cmd{grep}, \cmd{grep -r}, and Flags}
+
+\terminalwindow{ratul@firefly: \textasciitilde/lab5\_search\ \textemdash\ bash}{
+% Command 5: simple grep
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep "ERROR" logs/server.log}}
+
+\textcolor{termout}{[09:15:20] }\hl{ERROR}\textcolor{termout}{\ Database connection pool exhausted on port 5432}
+
+\textcolor{termout}{[09:22:45] }\hl{ERROR}\textcolor{termout}{\ Worker node 3 failed health check}
+
+\vspace{0.10cm}
+% Command 6: grep -i (case-insensitive)
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -i "warning" logs/server.log}}
+
+\textcolor{termout}{[09:10:02] }\hl{WARN}\textcolor{termout}{\ \ \ High memory threshold exceeded: 82\%}
+
+\textcolor{termout}{[09:12:30] }\hl{Warning}\textcolor{termout}{: Slow query response time (420ms)}
+
+\vspace{0.10cm}
+% Command 7: grep -n (with line numbers)
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -n "failed" logs/server.log}}
+
+\textcolor{termperm}{24}\textcolor{termtext}{:}\textcolor{termout}{[09:22:45] ERROR Worker node 3 }\hl{failed}\textcolor{termout}{\ health check}
+
+\vspace{0.10cm}
+% Command 8: grep -v (invert match)
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -v "INFO" logs/server.log | head -n 2}}
+
+\textcolor{termout}{[09:10:02] WARN   High memory threshold exceeded: 82\%}
+
+\textcolor{termout}{[09:15:20] ERROR  Database connection pool exhausted on port 5432}
+
+\vspace{0.10cm}
+% Command 9: grep -r (recursive search across folders)
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -r "database" .}}
+
+\textcolor{termdir}{src/main.py}\textcolor{termtext}{:}\textcolor{termout}{DB\_HOST = "}\hl{database}\textcolor{termout}{.internal.net"}
+
+\textcolor{termdir}{docs/notes.txt}\textcolor{termtext}{:}\textcolor{termout}{Remember to run }\hl{database}\textcolor{termout}{\ migrations before deploy}
+
+\vspace{0.10cm}
+% Command 10: grep -rn (recursive with line numbers)
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -rn "TODO" .}}
+
+\textcolor{termdir}{src/utils.py}\textcolor{termtext}{:}\textcolor{termperm}{14}\textcolor{termtext}{:}\textcolor{termout}{\# }\hl{TODO}\textcolor{termout}{: add token authentication}
+
+\textcolor{termdir}{docs/notes.txt}\textcolor{termtext}{:}\textcolor{termperm}{3}\textcolor{termtext}{:}\textcolor{termout}{- }\hl{TODO}\textcolor{termout}{: verify backup cron job}
+
+\vspace{0.08cm}
+% Final prompt
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\paragraph{Explanation of Session 2 Results:}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \cmd{grep "ERROR"}: Scanned \texttt{logs/server.log} and printed only lines containing the exact uppercase word \texttt{ERROR}.
+  \item \cmd{grep -i}: Ignored case distinctions, successfully matching both \texttt{WARN} and \texttt{Warning}.
+  \item \cmd{grep -n}: Included line number (\texttt{24:}) alongside the matched text, allowing quick navigation in editors.
+  \item \cmd{grep -v}: Inverted the search to exclude standard routine \texttt{INFO} messages, highlighting only important warnings and errors.
+  \item \cmd{grep -r}: Dived into every subfolder (\texttt{src/}, \texttt{docs/}, \texttt{logs/}) and printed the filename and matching line for \texttt{database}.
+  \item \cmd{grep -rn}: Combined recursion and line numbering, making it easy for developers to find code tasks (\texttt{TODO}) across a codebase.
+\end{itemize}
+
+% =========================================================
+% 7. Conclusion
+% =========================================================
+\section{Conclusion}
+In this lab, we mastered essential search utilities in the Linux terminal:
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item We used \cmd{find} to search the filesystem tree for files and directories based on patterns (\cmd{-name}), case-insensitivity (\cmd{-iname}), and types (\cmd{-type f}, \cmd{-type d}).
+  \item We used \cmd{grep} to scan inside text files, leveraging flags like \cmd{-i} (ignore case), \cmd{-n} (show line numbers), and \cmd{-v} (invert match).
+  \item We applied recursive search using \cmd{grep -r} and \cmd{grep -rn} to rapidly discover configuration strings and code comments across complex directory structures.
+\end{enumerate}
+Together, \cmd{find} and \cmd{grep} provide a fast, reliable, and powerful toolkit for navigating and troubleshooting Linux environments.
+
+\end{document}

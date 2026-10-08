@@ -1,0 +1,474 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,top=1.8cm,bottom=1.8cm,left=1.8cm,right=1.8cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{calc,shapes.geometric,backgrounds}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=primary,urlcolor=secondary]{hyperref}
+
+% =========================================================
+% Color Palette
+% =========================================================
+\definecolor{primary}{RGB}{30, 58, 138}        % Deep navy blue
+\definecolor{secondary}{RGB}{2, 132, 199}      % Cyan/Sky blue
+\definecolor{darkslate}{RGB}{51, 65, 85}       % Slate grey
+\definecolor{bordergray}{RGB}{209, 213, 219}   % Light grey border
+\definecolor{boxbg}{RGB}{248, 250, 252}        % Light subtle card bg
+
+% Terminal Colors (Light Grey Theme)
+\definecolor{termbg}{RGB}{246, 248, 250}       % Light grey background
+\definecolor{termbar}{RGB}{229, 231, 235}      % Slightly darker grey title bar
+\definecolor{termborder}{RGB}{209, 213, 219}   % Border grey
+\definecolor{termtext}{RGB}{31, 41, 55}        % Dark charcoal text
+\definecolor{termuser}{RGB}{22, 101, 52}       % Dark green for user
+\definecolor{termhost}{RGB}{21, 128, 61}       % Green for host
+\definecolor{termpath}{RGB}{29, 78, 216}       % Blue for directory path
+\definecolor{termcmd}{RGB}{17, 24, 39}         % Bold black for commands
+\definecolor{termout}{RGB}{55, 65, 81}         % Clear dark grey for outputs
+\definecolor{termdir}{RGB}{37, 99, 235}        % Blue for directories
+\definecolor{termfile}{RGB}{31, 41, 55}        % Dark for regular files
+\definecolor{termhidden}{RGB}{107, 114, 128}   % Muted grey for hidden files
+\definecolor{termsize}{RGB}{180, 83, 9}        % Amber for sizes
+\definecolor{termperm}{RGB}{79, 70, 229}       % Indigo for permissions
+\definecolor{termkey}{RGB}{194, 65, 12}        % Rust orange for editor shortcut keys
+
+% =========================================================
+% Section Headings (Clean, No Underline)
+% =========================================================
+\titleformat{\section}
+  {\color{primary}\large\bfseries\sffamily}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+
+\titleformat{\subsection}
+  {\color{secondary}\normalsize\bfseries\sffamily}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+
+% =========================================================
+% Headers and Footers (Completely Clean Footers)
+% =========================================================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\small\sffamily\color{darkslate} Operating Systems Lab}
+\fancyhead[R]{\small\sffamily\color{darkslate} Lab Report: Viewing \& Editing Files}
+\fancyfoot{}
+
+% First page style: no header at top, no footer at bottom
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% =========================================================
+% Terminal Window Macro (Light Grey with Crisp Edges)
+% =========================================================
+\newcommand{\termprompt}[1][\textasciitilde]{%
+  \textbf{\textcolor{termuser}{ratul}}\textcolor{termtext}{@}\textbf{\textcolor{termhost}{firefly}}\textcolor{termtext}{:}\textbf{\textcolor{termpath}{#1}}\textcolor{termcmd}{\$}\ %
+}
+
+\newcommand{\terminalwindow}[3][\linewidth]{%
+\begin{center}
+\begin{tikzpicture}
+  % 1. Terminal text on main layer
+  \node[
+      text=termtext,
+      font=\ttfamily\fontsize{7.1}{9.0}\selectfont,
+      align=left,
+      text width=\dimexpr#1-0.95cm\relax,
+      inner xsep=7pt,
+      inner ysep=7pt,
+      anchor=north west
+  ] (body) at (0.32cm, -0.56cm) {#3};
+
+  % Coordinates
+  \coordinate (topleft) at (0, 0);
+  \coordinate (bottomright) at ($(body.south -| #1, 0) + (0, -6pt)$);
+  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(#1, 0) + (0, -0.28cm)$);
+
+  % 2. Background and Title bar on background layer
+  \begin{scope}[on background layer]
+    % Light grey terminal body
+    \fill[termbg, rounded corners=6pt] (topleft) rectangle (bottomright);
+
+    % Title bar (clipped to match rounded top corners)
+    \begin{scope}
+      \clip[rounded corners=6pt] (topleft) rectangle (bottomright);
+      \fill[termbar] (topleft) rectangle (#1, -0.56cm);
+      \draw[termborder, line width=0.5pt] (0, -0.56cm) -- (#1, -0.56cm);
+    \end{scope}
+
+    % Continuous outer border (smooth, no distortion)
+    \draw[termborder, line width=0.6pt, rounded corners=6pt] (topleft) rectangle (bottomright);
+  \end{scope}
+
+  % 3. Window control dots
+  \fill[red!80!black] (0.36cm, -0.28cm) circle (0.07cm);
+  \fill[yellow!80!black] (0.63cm, -0.28cm) circle (0.07cm);
+  \fill[green!75!black] (0.90cm, -0.28cm) circle (0.07cm);
+
+  % 4. Centered terminal title
+  \node[
+      text=gray!40!black,
+      font=\sffamily\bfseries\fontsize{7.2}{8}\selectfont,
+      anchor=center
+  ] at (titlecenter) {#2};
+\end{tikzpicture}
+\end{center}
+\vspace{-6pt}
+}
+
+\newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
+\newcommand{\key}[1]{\textbf{\textcolor{termkey}{#1}}}
+
+\begin{document}
+\thispagestyle{firstpage}
+
+% =========================================================
+% Title: Only Experiment Title at the Top
+% =========================================================
+\begin{center}
+  {\Large\bfseries\sffamily\color{primary} Experiment Title: Viewing and Editing Files in Linux Terminal}\\[3pt]
+  {\normalsize\sffamily\textbf{Topic:} File Viewing Tools (\cmd{cat}, \cmd{less}, \cmd{head}, \cmd{tail}) and Text Editors (\cmd{nano}, \cmd{vim})}
+\end{center}
+\vspace{-4pt}
+
+% =========================================================
+% 1. Objective
+% =========================================================
+\section{Objective}
+The objective of this lab is to learn how to view file contents quickly from the command line and edit configuration or source files using terminal-based text editors. By completing this experiment, we aim to:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item Inspect whole text files, file headers, and file tails using \cmd{cat}, \cmd{less}, \cmd{head}, and \cmd{tail}.
+  \item Check software presence using \cmd{which} and install missing editors using \cmd{sudo apt install}.
+  \item Master basic text editing with \cmd{nano}: saving, exiting, cut, copy, paste, undo, redo, searching, and replacing.
+  \item Master modal text editing with \cmd{vim}: switching modes, saving, quitting, yank (copy), put (paste), delete (cut), undo, redo, searching, and substitute (replace).
+\end{itemize}
+
+% =========================================================
+% 2. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (Ubuntu / Debian / NixOS) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} (with sudo privileges) & \textbf{Terminal Shell} & GNU Bash 5.2 \\
+\textbf{Viewing Utilities} & GNU Coreutils (\texttt{cat}, \texttt{head}, \texttt{tail}), \texttt{less} & \textbf{Text Editors} & GNU Nano 7.2, Vim 9.1 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-8pt}
+
+% =========================================================
+% 3. Theoretical Background
+% =========================================================
+\section{Theoretical Background}
+In Linux, administrators and programmers frequently need to read logs and modify system files without a graphical user interface (GUI). Tools in Linux fall into two groups: \textbf{pagers/viewers} (for reading without modifying) and \textbf{terminal text editors} (for creating and editing).
+
+\subsection{File Viewing Commands}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.06}
+\begin{tabularx}{\linewidth}{llp{5.4cm}X}
+\toprule
+\textbf{Command} & \textbf{Syntax} & \textbf{Simple Meaning / Purpose} & \textbf{Example} \\
+\midrule
+\cmd{cat} & \texttt{cat <file>} & Dumps the entire file onto the terminal screen. & \texttt{cat config.txt} \\
+\cmd{less} & \texttt{less <file>} & Opens file in a scrollable viewer (page by page). & \texttt{less system.log} \\
+\cmd{head} & \texttt{head -n <N> <file>} & Shows the first $N$ lines of a file (default is 10 lines). & \texttt{head -n 5 sample.txt} \\
+\cmd{tail} & \texttt{tail -n <N> <file>} & Shows the last $N$ lines of a file (useful for recent logs). & \texttt{tail -n 3 server.log} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+\subsection{Comparing Nano and Vim}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{p{2.6cm}Xp{5.8cm}}
+\toprule
+\textbf{Editor} & \textbf{Design Style} & \textbf{Best Used For} \\
+\midrule
+\textbf{GNU Nano} & Simple, modeless editor. Always ready to type. Shortcut hints are shown at the bottom of the screen with \key{\^{}} (Ctrl) and \key{M-} (Alt). & Quick edits, configuration changes, and beginners who want immediate typing like Notepad. \\
+\textbf{Vim} & Modal editor with distinct operational modes (\textit{Normal}, \textit{Insert}, and \textit{Command-line}). Keys act as commands in Normal mode. & Advanced editing, code writing, fast navigation without touching the mouse, available on almost every Unix server. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\newpage
+
+% =========================================================
+% 4. Quick Shortcut Reference Tables
+% =========================================================
+\section{Editor Commands and Shortcut Reference}
+
+\subsection{GNU Nano Shortcuts}
+In Nano, \key{\^{}} stands for the \key{Ctrl} key, and \key{M-} (Meta) stands for the \key{Alt} key:
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.06}
+\begin{tabularx}{\linewidth}{lp{3.5cm}X}
+\toprule
+\textbf{Action} & \textbf{Nano Shortcut / Command} & \textbf{Simple Explanation} \\
+\midrule
+\textbf{Check Presence} & \texttt{which nano} & Shows the location of nano executable on disk. \\
+\textbf{Install} & \texttt{sudo apt install nano} & Installs nano package on Debian/Ubuntu systems. \\
+\textbf{Save (WriteOut)} & \key{Ctrl + O} & Prompts for file name and saves changes to disk. \\
+\textbf{Exit} & \key{Ctrl + X} & Closes nano (asks to save if changes were made). \\
+\textbf{Cut Text} & \key{Ctrl + K} & Cuts (kills) the current line or selected text into the buffer. \\
+\textbf{Copy Text} & \key{Alt + 6} (or \key{M-6}) & Copies the selected text or current line into the buffer. \\
+\textbf{Paste Text} & \key{Ctrl + U} & Pastes (uncuts) whatever was last cut or copied. \\
+\textbf{Undo} & \key{Alt + U} & Reverts the previous editing action. \\
+\textbf{Redo} & \key{Alt + E} & Re-applies the undone editing action. \\
+\textbf{Search (Find)} & \key{Ctrl + W} & Opens "Where Is" search prompt; press Enter to jump to match. \\
+\textbf{Search \& Replace} & \key{Ctrl + \textbackslash} & Prompts for search word, then replacement word, and confirms each. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-4pt}
+
+\subsection{Vim Modal Commands}
+In Vim, press \key{Esc} to ensure you are in \textbf{Normal Mode} before running commands:
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.06}
+\begin{tabularx}{\linewidth}{lp{3.5cm}X}
+\toprule
+\textbf{Action} & \textbf{Vim Command / Key} & \textbf{Simple Explanation} \\
+\midrule
+\textbf{Check Presence} & \texttt{which vim} & Displays the binary path for vim. \\
+\textbf{Install} & \texttt{sudo apt install vim} & Installs full vim editor on Debian/Ubuntu systems. \\
+\textbf{Enter Edit Mode} & \key{i} & Enters Insert Mode so typed keys appear as text. \\
+\textbf{Save} & \texttt{:w} & Writes (saves) changes without quitting. \\
+\textbf{Exit} & \texttt{:q} (or \texttt{:wq} / \texttt{:q!}) & Quits vim (\texttt{:wq} saves and quits; \texttt{:q!} quits without saving). \\
+\textbf{Cut Line} & \key{dd} & Deletes (cuts) the whole current line into the paste register. \\
+\textbf{Copy Line} & \key{yy} & Yanks (copies) the current line into memory. \\
+\textbf{Paste} & \key{p} & Puts (pastes) copied/cut text below the current cursor line. \\
+\textbf{Undo} & \key{u} & Undoes the last change made. \\
+\textbf{Redo} & \key{Ctrl + r} & Redoes the undone change. \\
+\textbf{Search Forward} & \texttt{/word} & Searches for "word"; press \key{n} for next match, \key{N} for previous. \\
+\textbf{Search \& Replace} & \texttt{:\%s/old/new/g} & Replaces all occurrences of "old" with "new" across the entire file. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+% =========================================================
+% 5. Procedure / Steps
+% =========================================================
+\section{Procedure / Steps}
+We practiced viewing and editing through the following clear, numbered steps:
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item Created a multi-line sample log file (\cmd{server.log}) with timestamps and error messages.
+  \item Displayed the entire file using \cmd{cat server.log}.
+  \item Extracted the top 3 lines using \cmd{head -n 3} and bottom 3 lines using \cmd{tail -n 3}.
+  \item Scrolled through the file interactively with \cmd{less server.log} and exited with \key{q}.
+  \item Checked nano installation with \cmd{which nano} (and simulated package update with \cmd{sudo apt install nano}).
+  \item Opened nano, typed text, searched with \key{Ctrl+W}, replaced with \key{Ctrl+\textbackslash}, saved with \key{Ctrl+O}, and exited with \key{Ctrl+X}.
+  \item Checked vim with \cmd{which vim}, opened a file, switched between Normal and Insert modes, performed copy (\key{yy}), paste (\key{p}), cut (\key{dd}), undo (\key{u}), redo (\key{Ctrl+r}), search (\cmd{/text}), replace (\cmd{:\%s/old/new/g}), and saved with \cmd{:wq}.
+\end{enumerate}
+
+\newpage
+
+% =========================================================
+% 6. Result / Output Demonstration
+% =========================================================
+\section{Result / Output Demonstration}
+All commands were executed under user \texttt{ratul} on host machine \texttt{firefly}.
+
+\subsection{Part 1: Viewing Files with \cmd{cat}, \cmd{head}, \cmd{tail}, and \cmd{less}}
+
+\terminalwindow{ratul@firefly: \textasciitilde/lab4\ \textemdash\ bash}{
+% View full file
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{cat server.log}}
+
+\textcolor{termout}{[2026-10-08 09:00:01] INFO  System startup complete}
+
+\textcolor{termout}{[2026-10-08 09:05:12] DEBUG Loading database connection pool}
+
+\textcolor{termout}{[2026-10-08 09:12:44] WARN  High CPU usage detected on core 2}
+
+\textcolor{termout}{[2026-10-08 09:20:10] ERROR Port 8080 timeout connecting to worker}
+
+\textcolor{termout}{[2026-10-08 09:30:00] INFO  Scheduled backup process finished}
+
+\vspace{0.12cm}
+% View first 2 lines
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{head -n 2 server.log}}
+
+\textcolor{termout}{[2026-10-08 09:00:01] INFO  System startup complete}
+
+\textcolor{termout}{[2026-10-08 09:05:12] DEBUG Loading database connection pool}
+
+\vspace{0.12cm}
+% View last 2 lines
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{tail -n 2 server.log}}
+
+\textcolor{termout}{[2026-10-08 09:20:10] ERROR Port 8080 timeout connecting to worker}
+
+\textcolor{termout}{[2026-10-08 09:30:00] INFO  Scheduled backup process finished}
+
+\vspace{0.12cm}
+% Open interactive pager
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{less server.log}}
+
+\textcolor{termhidden}{server.log (lines 1-5/5) (Press q to quit, / to search)}
+}
+
+\paragraph{Explanation of Part 1 Results:}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \cmd{cat}: Printed all lines directly to the terminal. Great for short files, but long files scroll off screen.
+  \item \cmd{head -n 2}: Filtered and printed only the top 2 lines of the log.
+  \item \cmd{tail -n 2}: Filtered and printed only the bottom 2 lines, which shows the most recent system events.
+  \item \cmd{less}: Opened the file in a clean interactive view where we can scroll and search without modifying the file.
+\end{itemize}
+
+\subsection{Part 2: Installing and Editing with GNU Nano}
+
+\terminalwindow{ratul@firefly: \textasciitilde/lab4\ \textemdash\ bash}{
+% Check which nano
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{which nano}}
+
+\textcolor{termout}{/usr/bin/nano}
+
+\vspace{0.08cm}
+% Simulate install
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{sudo apt install nano}}
+
+\textcolor{termout}{nano is already the newest version (7.2-1ubuntu1).}
+
+\vspace{0.12cm}
+% Nano visual session
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{nano app\_config.txt}}
+
+\vspace{0.06cm}
+\textcolor{termdir}{\textbf{GNU nano 7.2\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ File: app\_config.txt\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Modified}}
+
+\textcolor{termfile}{server\_mode = production}
+
+\textcolor{termfile}{max\_connections = 500}
+
+\textcolor{termfile}{port = 9000}
+
+\vspace{0.06cm}
+\textcolor{termdir}{\textbf{[ Replace "development" with "production" completed: 1 replacement ]}}
+
+\textcolor{termhidden}{\textbf{\^{}G} Get Help\ \ \ \textbf{\^{}O} WriteOut\ \ \ \textbf{\^{}W} Where Is\ \ \ \textbf{\^{}K} Cut\ \ \ \ \ \ \textbf{M-U} Undo\ \ \ \ \ \ \textbf{\^{}X} Exit}
+
+\textcolor{termhidden}{\textbf{\^{}R} Read File\ \ \textbf{\^{}\textbackslash} Replace\ \ \ \ \textbf{\^{}\_} Go To Line\ \textbf{\^{}U} Paste\ \ \ \ \textbf{M-E} Redo\ \ \ \ \ \ \textbf{M-6} Copy}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{cat app\_config.txt}}
+
+\textcolor{termout}{server\_mode = production\ \ |\ \ max\_connections = 500\ \ |\ \ port = 9000}
+}
+
+\paragraph{Explanation of Part 2 Results:}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \cmd{which nano} confirmed nano is located at \texttt{/usr/bin/nano}. \cmd{sudo apt install nano} verified the package is ready.
+  \item Inside nano, we used \key{Ctrl+W} to search, \key{Ctrl+\textbackslash} to replace \texttt{development} with \texttt{production}, \key{Ctrl+K} / \key{Ctrl+U} to cut and paste lines, and \key{Alt+U} / \key{Alt+E} for undo and redo.
+  \item We saved with \key{Ctrl+O} and exited cleanly back to bash using \key{Ctrl+X}.
+\end{itemize}
+
+\newpage
+
+% =========================================================
+% 6. Result / Output Demonstration (Part 3)
+% =========================================================
+\subsection{Part 3: Installing and Editing with Vim}
+
+\terminalwindow{ratul@firefly: \textasciitilde/lab4\ \textemdash\ bash}{
+% Check which vim
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{which vim}}
+
+\textcolor{termout}{/usr/bin/vim}
+
+\vspace{0.08cm}
+% Simulate install
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{sudo apt install vim}}
+
+\textcolor{termout}{vim is already the newest version (2:9.1.0-1ubuntu1).}
+
+\vspace{0.12cm}
+% Vim visual session
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{vim script.sh}}
+
+\vspace{0.06cm}
+\textcolor{termdir}{\textbf{\textasciitilde\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ VIM - Vi IMproved 9.1}}
+
+\textcolor{termfile}{1\ \ \#!/usr/bin/env bash}
+
+\textcolor{termfile}{2\ \ echo "Starting backup service..."}
+
+\textcolor{termfile}{3\ \ echo "Status: service running successfully."}
+
+\textcolor{termfile}{4\ \ echo "Completed backup."}
+
+\vspace{0.06cm}
+\textcolor{termhost}{\textbf{-- INSERT --}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{termout}{4,1\ \ \ \ \ \ \ \ \ \ All}
+
+\textcolor{termuser}{\textbf{:\%s/task/service/g}}\ \ \ \ \textcolor{termout}{2 substitutions on 2 lines}
+
+\textcolor{termuser}{\textbf{:wq}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{termout}{"script.sh" 4L, 114B written}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{cat script.sh}}
+
+\textcolor{termout}{\#!/usr/bin/env bash}
+
+\textcolor{termout}{echo "Starting backup service..."}
+
+\textcolor{termout}{echo "Status: service running successfully."}
+
+\textcolor{termout}{echo "Completed backup."}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\paragraph{Explanation of Part 3 Results:}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \textbf{Checking \& Installing:} \cmd{which vim} verified the path \texttt{/usr/bin/vim}. \cmd{sudo apt install vim} confirmed the package is installed.
+  \item \textbf{Modes:} Started in \textit{Normal Mode}. Pressed \key{i} to enter \textit{Insert Mode} and add code lines. Pressed \key{Esc} to return to Normal Mode.
+  \item \textbf{Line Operations:} Pressed \key{yy} to yank (copy) line 2 and \key{p} to paste it. Pressed \key{dd} to cut (delete) an unwanted line.
+  \item \textbf{Undo and Redo:} Pressed \key{u} to undo the deletion, and \key{Ctrl+r} to redo it.
+  \item \textbf{Search and Replace:} Searched with \cmd{/backup}. Replaced words using the substitution command \cmd{:\%s/task/service/g}.
+  \item \textbf{Save and Exit:} Saved and quit safely using \cmd{:wq}.
+\end{itemize}
+
+% =========================================================
+% 7. Conclusion
+% =========================================================
+\section{Conclusion}
+In this lab, we developed confidence in viewing and editing files completely from the Linux terminal:
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item \textbf{Quick Inspection:} We used \cmd{cat} for quick output, \cmd{head} and \cmd{tail} to focus on file beginnings and ends, and \cmd{less} to comfortably scroll through larger logs.
+  \item \textbf{Beginner Friendly Editing with Nano:} We learned that Nano offers a straightforward, modeless editor with clear on-screen shortcut keys for saving (\key{Ctrl+O}), cutting (\key{Ctrl+K}), pasting (\key{Ctrl+U}), searching (\key{Ctrl+W}), and replacing (\key{Ctrl+\textbackslash}).
+  \item \textbf{Powerful Modal Editing with Vim:} We learned Vim's modal design, switching between Normal and Insert modes, executing rapid line operations (\key{yy}, \key{dd}, \key{p}), undoing mistakes (\key{u}), redoing (\key{Ctrl+r}), replacing text with \cmd{:\%s}, and saving/quitting with \cmd{:wq}.
+\end{enumerate}
+These command-line skills are fundamental for troubleshooting systems and managing Linux environments effectively.
+
+\end{document}
