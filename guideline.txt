@@ -1,0 +1,29 @@
+Guideline for Writing a Lab Report on Linux Commands
+1. Title
+Experiment Title: Practice of Basic Linux Terminal Commands
+2. Objective
+State the purpose of the experiment clearly.
+Example:
+The objective of this lab is to familiarize students with the Linux terminal environment by practicing fundamental commands for file management, navigation, and system operations.
+3. Theoretical Background
+describe the theoretical concepts of each terminal command they practiced.
+Include:
+    • Command name
+    • Purpose / Function
+    • Syntax / Format
+    • Example usage
+4. Equipment / Software Requirements
+List all required software and environment setup.
+Example:
+    • Operating System: Linux (Ubuntu / Fedora / Debian / etc.)
+    • Terminal Emulator: Default Linux Terminal
+    • Virtual Machine (if applicable): VirtualBox / VMware
+    • Text Editor: Nano / Vim / Gedit
+5. Procedure / Steps
+List all required steps.
+6. Result / Output
+    • Include screenshots of executed commands.
+    • Show command outputs and results.
+    • Briefly explain each result.
+7. Conclusion
+Provide a short conclusion highlighting your understanding and experience.
