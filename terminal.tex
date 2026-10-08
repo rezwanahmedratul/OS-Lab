@@ -1,0 +1,711 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[a4paper,top=0.8cm,bottom=0.8cm,left=1.2cm,right=1.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{calc,shapes.geometric,backgrounds}
+\usepackage{microtype}
+\usepackage{iftex}
+
+\ifXeTeX
+  \usepackage{fontspec}
+  \setmainfont{Latin Modern Roman}
+  \newfontfamily\terminalfont{JetBrains Mono}[Scale=1.0]
+\else\ifLuaTeX
+  \usepackage{fontspec}
+  \setmainfont{Latin Modern Roman}
+  \newfontfamily\terminalfont{JetBrains Mono}[Scale=1.0]
+\else
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+  \usepackage{lmodern}
+  \newcommand{\terminalfont}{\ttfamily}
+\fi\fi
+
+\usepackage[colorlinks=true,linkcolor=primary,urlcolor=secondary]{hyperref}
+
+% =========================================================
+% Color Palette
+% =========================================================
+\definecolor{primary}{RGB}{30, 58, 138}        % Deep navy blue
+\definecolor{secondary}{RGB}{2, 132, 199}      % Cyan/Sky blue
+\definecolor{darkslate}{RGB}{51, 65, 85}       % Slate grey
+\definecolor{bordergray}{RGB}{209, 213, 219}   % Light grey border
+\definecolor{boxbg}{RGB}{248, 250, 252}        % Light subtle card bg
+
+% Terminal Colors (Light Grey Theme)
+\definecolor{termbg}{RGB}{246, 248, 250}       % Light grey background
+\definecolor{termbar}{RGB}{229, 231, 235}      % Slightly darker grey title bar
+\definecolor{termborder}{RGB}{209, 213, 219}   % Border grey
+\definecolor{termtext}{RGB}{31, 41, 55}        % Dark charcoal text
+\definecolor{termuser}{RGB}{22, 101, 52}       % Dark green for user
+\definecolor{termhost}{RGB}{21, 128, 61}       % Green for host
+\definecolor{termpath}{RGB}{29, 78, 216}       % Blue for directory path
+\definecolor{termcmd}{RGB}{17, 24, 39}         % Bold black for commands
+\definecolor{termout}{RGB}{55, 65, 81}         % Clear dark grey for outputs
+\definecolor{termdir}{RGB}{37, 99, 235}        % Blue for directories
+\definecolor{termfile}{RGB}{31, 41, 55}        % Dark for regular files
+\definecolor{termhidden}{RGB}{107, 114, 128}   % Muted grey for hidden files
+\definecolor{termsize}{RGB}{180, 83, 9}        % Amber for sizes
+\definecolor{termperm}{RGB}{79, 70, 229}       % Indigo for permissions
+\definecolor{termmatch}{RGB}{220, 38, 38}      % Red highlight for matches
+\definecolor{termkey}{RGB}{194, 65, 12}        % Burnt orange for editor keys
+
+% =========================================================
+% Page Style (Empty for Clean Printable Cutouts)
+% =========================================================
+\pagestyle{empty}
+
+% =========================================================
+% Macros
+% =========================================================
+\newcommand{\termprompt}[1][\textasciitilde]{%
+  \textbf{\textcolor{termuser}{ratul}}\textcolor{termtext}{@}\textbf{\textcolor{termhost}{firefly}}\textcolor{termtext}{:}\textbf{\textcolor{termpath}{#1}}\textcolor{termcmd}{\$}\ %
+}
+
+\newcommand{\terminalwindow}[2]{%
+\begin{center}
+\vspace{-5pt}
+\begin{tikzpicture}
+  % 1. Terminal text on main layer with JetBrains Mono font
+  \node[
+      text=termtext,
+      font=\terminalfont\fontsize{8.2}{10.4}\selectfont,
+      align=left,
+      text width=\dimexpr\linewidth-0.95cm\relax,
+      inner xsep=7pt,
+      inner ysep=6pt,
+      anchor=north west
+  ] (body) at (0.30cm, -0.48cm) {#2};
+
+  % Coordinates
+  \coordinate (topleft) at (0, 0);
+  \coordinate (bottomright) at ($(body.south -| \linewidth, 0) + (0, -5pt)$);
+  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(\linewidth, 0) + (0, -0.24cm)$);
+
+  % 2. Background and Title bar on background layer
+  \begin{scope}[on background layer]
+    % Light grey terminal body
+    \fill[termbg, rounded corners=6pt] (topleft) rectangle (bottomright);
+
+    % Title bar
+    \begin{scope}
+      \clip[rounded corners=6pt] (topleft) rectangle (bottomright);
+      \fill[termbar] (topleft) rectangle (\linewidth, -0.48cm);
+      \draw[termborder, line width=0.5pt] (0, -0.48cm) -- (\linewidth, -0.48cm);
+    \end{scope}
+
+    % Continuous outer border
+    \draw[termborder, line width=0.55pt, rounded corners=6pt] (topleft) rectangle (bottomright);
+  \end{scope}
+
+  % 3. Window control dots
+  \fill[red!80!black] (0.34cm, -0.24cm) circle (0.065cm);
+  \fill[yellow!80!black] (0.59cm, -0.24cm) circle (0.065cm);
+  \fill[green!75!black] (0.84cm, -0.24cm) circle (0.065cm);
+
+  % 4. Centered terminal title
+  \node[
+      text=gray!40!black,
+      font=\sffamily\bfseries\fontsize{7.2}{7.8}\selectfont,
+      anchor=center
+  ] at (titlecenter) {#1};
+\end{tikzpicture}
+\vspace{-8pt}
+\end{center}
+}
+
+\newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
+\newcommand{\key}[1]{\textbf{\textcolor{termkey}{#1}}}
+\newcommand{\hl}[1]{\textbf{\textcolor{termmatch}{#1}}}
+
+% Unified Terminal Block with Label and Cut Line
+\newcommand{\terminalblock}[4]{%
+  \par\noindent
+  \begin{minipage}{\linewidth}
+    \vspace{3pt}
+    {\sffamily\bfseries\color{primary}\small #1: \textcolor{darkslate}{#2}}\\[-4pt]
+    \terminalwindow{#3}{#4}
+    \vspace{2pt}
+    \begin{tikzpicture}
+      \draw[dashed, gray!40, line width=0.5pt] (0, 0) -- (\linewidth, 0);
+    \end{tikzpicture}
+  \end{minipage}\par
+  \vspace{4pt}
+}
+
+\begin{document}
+
+% =========================================================================
+% LAB 2 TERMINALS
+% =========================================================================
+
+\terminalblock{Lab 2 --- Session 1}{Finding Location, Moving Folders, and Listing Files}{ratul@firefly: \textasciitilde\ \textemdash\ bash}{
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{whoami}}
+
+\textcolor{termout}{ratul}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{pwd}}
+
+\textcolor{termout}{/home/ratul}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{ls}}
+
+\textcolor{termdir}{\textbf{Desktop}}\ \ \ \ \textcolor{termdir}{\textbf{Documents}}\ \ \ \ \textcolor{termdir}{\textbf{Downloads}}\ \ \ \ \textcolor{termdir}{\textbf{lab\_demo}}\ \ \ \ \textcolor{termdir}{\textbf{Music}}\ \ \ \ \textcolor{termdir}{\textbf{Pictures}}\ \ \ \ \textcolor{termdir}{\textbf{Videos}}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{cd lab\_demo}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{pwd}}
+
+\textcolor{termout}{/home/ratul/lab\_demo}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls}}
+
+\textcolor{termdir}{\textbf{backups}}\ \ \ \ \textcolor{termfile}{data.csv}\ \ \ \ \textcolor{termfile}{notes.txt}\ \ \ \ \textcolor{termfile}{report.pdf}\ \ \ \ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -a}}
+
+\textcolor{termhidden}{\textbf{.}}\ \ \ \ \textcolor{termhidden}{\textbf{..}}\ \ \ \ \textcolor{termhidden}{.lab\_profile}\ \ \ \ \textcolor{termhidden}{.secret.key}\ \ \ \ \textcolor{termdir}{\textbf{backups}}\ \ \ \ \textcolor{termfile}{data.csv}\ \ \ \ \textcolor{termfile}{notes.txt}\ \ \ \ \textcolor{termfile}{report.pdf}\ \ \ \ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\terminalblock{Lab 2 --- Session 2}{Inspecting File Details, Easy Sizes, and Returning Home}{ratul@firefly: \textasciitilde/lab\_demo\ \textemdash\ bash}{
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -l}}
+
+\textcolor{termout}{total 23568}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:15\ \textcolor{termdir}{\textbf{backups}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ 14680064\ Oct\ \ 8\ 10:20\ \textcolor{termfile}{data.csv}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 1433\ Oct\ \ 8\ 10:22\ \textcolor{termfile}{notes.txt}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ 262144\ Oct\ \ 8\ 10:25\ \textcolor{termfile}{report.pdf}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -lh}}
+
+\textcolor{termout}{total 24M}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{4.0K}}\ Oct\ \ 8\ 10:15\ \textcolor{termdir}{\textbf{backups}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{\ 14M}}\ Oct\ \ 8\ 10:20\ \textcolor{termfile}{data.csv}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{1.4K}}\ Oct\ \ 8\ 10:22\ \textcolor{termfile}{notes.txt}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{256K}}\ Oct\ \ 8\ 10:25\ \textcolor{termfile}{report.pdf}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{4.0K}}\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -la}}
+
+\textcolor{termout}{total 23580}
+
+\textcolor{termperm}{drwxr-xr-x}\ 4\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:28\ \textcolor{termhidden}{\textbf{.}}
+
+\textcolor{termperm}{drwx------}\ 9\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 09:50\ \textcolor{termhidden}{\textbf{..}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ \ 342\ Oct\ \ 8\ 10:12\ \textcolor{termhidden}{.lab\_profile}
+
+\textcolor{termperm}{-rw-------}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ \ \ 64\ Oct\ \ 8\ 10:14\ \textcolor{termhidden}{.secret.key}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:15\ \textcolor{termdir}{\textbf{backups}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ 14680064\ Oct\ \ 8\ 10:20\ \textcolor{termfile}{data.csv}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 1433\ Oct\ \ 8\ 10:22\ \textcolor{termfile}{notes.txt}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ 262144\ Oct\ \ 8\ 10:25\ \textcolor{termfile}{report.pdf}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{cd \textasciitilde}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{pwd}}
+
+\textcolor{termout}{/home/ratul}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+% =========================================================================
+% LAB 3 TERMINALS
+% =========================================================================
+
+\terminalblock{Lab 3 --- Session 1}{Creating Directories, Nested Trees, Empty Files, and Copying}{ratul@firefly: \textasciitilde/lab3\_demo\ \textemdash\ bash}{
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{mkdir docs backup}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{mkdir -p proj/src/utils}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{touch docs/notes.txt proj/src/main.c}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{ls docs proj/src}}
+
+\textcolor{termout}{docs:}\ \ \textcolor{termfile}{notes.txt}\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{termout}{proj/src:}\ \ \textcolor{termfile}{main.c}\ \ \textcolor{termdir}{\textbf{utils}}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{cp docs/notes.txt docs/notes\_copy.txt}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{ls -l docs}}
+
+\textcolor{termout}{total 0}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ 0\ Oct\ \ 8\ 14:10\ \textcolor{termfile}{notes.txt}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ 0\ Oct\ \ 8\ 14:12\ \textcolor{termfile}{notes\_copy.txt}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\terminalblock{Lab 3 --- Session 2}{Moving, Renaming, and Removing Files and Directories}{ratul@firefly: \textasciitilde/lab3\_demo\ \textemdash\ bash}{
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{mv docs/notes\_copy.txt backup/}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{mv backup/notes\_copy.txt backup/notes\_v1.txt}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{ls backup}}
+
+\textcolor{termfile}{notes\_v1.txt}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{touch temp.log \&\& rm temp.log}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{mkdir -p temp\_cache/data \&\& touch temp\_cache/data/cache.bin}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{rm -r temp\_cache}}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{mkdir -p scratch/a/b \&\& touch scratch/a/test.tmp}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{rm -rf scratch}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{ls}}
+
+\textcolor{termdir}{\textbf{backup}}\ \ \ \ \textcolor{termdir}{\textbf{docs}}\ \ \ \ \textcolor{termdir}{\textbf{proj}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab3\_demo]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+% =========================================================================
+% LAB 4 TERMINALS
+% =========================================================================
+
+\terminalblock{Lab 4 --- Part 1}{Viewing Files with cat, head, tail, and less}{ratul@firefly: \textasciitilde/lab4\ \textemdash\ bash}{
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{cat server.log}}
+
+\textcolor{termout}{[2026-10-08 09:00:01] INFO  System startup complete}
+
+\textcolor{termout}{[2026-10-08 09:05:12] DEBUG Loading database connection pool}
+
+\textcolor{termout}{[2026-10-08 09:12:44] WARN  High CPU usage detected on core 2}
+
+\textcolor{termout}{[2026-10-08 09:20:10] ERROR Port 8080 timeout connecting to worker}
+
+\textcolor{termout}{[2026-10-08 09:30:00] INFO  Scheduled backup process finished}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{head -n 2 server.log}}
+
+\textcolor{termout}{[2026-10-08 09:00:01] INFO  System startup complete}
+
+\textcolor{termout}{[2026-10-08 09:05:12] DEBUG Loading database connection pool}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{tail -n 2 server.log}}
+
+\textcolor{termout}{[2026-10-08 09:20:10] ERROR Port 8080 timeout connecting to worker}
+
+\textcolor{termout}{[2026-10-08 09:30:00] INFO  Scheduled backup process finished}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{less server.log}}
+
+\textcolor{termhidden}{server.log (lines 1-5/5) (Press q to quit, / to search)}
+}
+
+\terminalblock{Lab 4 --- Part 2}{Installing and Editing with GNU Nano}{ratul@firefly: \textasciitilde/lab4\ \textemdash\ bash}{
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{which nano}}
+
+\textcolor{termout}{/usr/bin/nano}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{sudo apt install nano}}
+
+\textcolor{termout}{nano is already the newest version (7.2-1ubuntu1).}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{nano app\_config.txt}}
+
+\vspace{0.04cm}
+\textcolor{termdir}{\textbf{GNU nano 7.2\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ File: app\_config.txt\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Modified}}
+
+\textcolor{termfile}{server\_mode = production}
+
+\textcolor{termfile}{max\_connections = 500}
+
+\textcolor{termfile}{port = 9000}
+
+\vspace{0.04cm}
+\textcolor{termdir}{\textbf{[ Replace "development" with "production" completed: 1 replacement ]}}
+
+\textcolor{termhidden}{\textbf{\^{}G} Get Help\ \ \ \textbf{\^{}O} WriteOut\ \ \ \textbf{\^{}W} Where Is\ \ \ \textbf{\^{}K} Cut\ \ \ \ \ \ \textbf{M-U} Undo\ \ \ \ \ \ \textbf{\^{}X} Exit}
+
+\textcolor{termhidden}{\textbf{\^{}R} Read File\ \ \textbf{\^{}\textbackslash} Replace\ \ \ \ \textbf{\^{}\_} Go To Line\ \textbf{\^{}U} Paste\ \ \ \ \textbf{M-E} Redo\ \ \ \ \ \ \textbf{M-6} Copy}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{cat app\_config.txt}}
+
+\textcolor{termout}{server\_mode = production\ \ |\ \ max\_connections = 500\ \ |\ \ port = 9000}
+}
+
+\terminalblock{Lab 4 --- Part 3}{Installing and Editing with Vim}{ratul@firefly: \textasciitilde/lab4\ \textemdash\ bash}{
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{which vim}}
+
+\textcolor{termout}{/usr/bin/vim}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{sudo apt install vim}}
+
+\textcolor{termout}{vim is already the newest version (2:9.1.0-1ubuntu1).}
+
+\vspace{0.08cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{vim script.sh}}
+
+\vspace{0.04cm}
+\textcolor{termdir}{\textbf{\textasciitilde\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ VIM - Vi IMproved 9.1}}
+
+\textcolor{termfile}{1\ \ \#!/usr/bin/env bash}
+
+\textcolor{termfile}{2\ \ echo "Starting backup service..."}
+
+\textcolor{termfile}{3\ \ echo "Status: service running successfully."}
+
+\textcolor{termfile}{4\ \ echo "Completed backup."}
+
+\vspace{0.04cm}
+\textcolor{termhost}{\textbf{-- INSERT --}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{termout}{4,1\ \ \ \ \ \ \ \ \ \ All}
+
+\textcolor{termuser}{\textbf{:\%s/task/service/g}}\ \ \ \ \textcolor{termout}{2 substitutions on 2 lines}
+
+\textcolor{termuser}{\textbf{:wq}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{termout}{"script.sh" 4L, 114B written}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{cat script.sh}}
+
+\textcolor{termout}{\#!/usr/bin/env bash}
+
+\textcolor{termout}{echo "Starting backup service..."}
+
+\textcolor{termout}{echo "Status: service running successfully."}
+
+\textcolor{termout}{echo "Completed backup."}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab4]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+% =========================================================================
+% LAB 5 TERMINALS
+% =========================================================================
+
+\terminalblock{Lab 5 --- Session 1}{Finding Files by Name, Extension, and Type with find}{ratul@firefly: \textasciitilde/lab5\_search\ \textemdash\ bash}{
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{find . -name "*.log"}}
+
+\textcolor{termout}{./logs/error.log}
+
+\textcolor{termout}{./logs/server.log}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{find . -iname "readme*"}}
+
+\textcolor{termout}{./docs/README.md}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{find . -type d}}
+
+\textcolor{termdir}{.}
+
+\textcolor{termdir}{./docs}
+
+\textcolor{termdir}{./src}
+
+\textcolor{termdir}{./logs}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{find . -type f -name "*.py"}}
+
+\textcolor{termout}{./src/main.py}
+
+\textcolor{termout}{./src/utils.py}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\terminalblock{Lab 5 --- Session 2}{Searching File Content with grep, grep -r, and Flags}{ratul@firefly: \textasciitilde/lab5\_search\ \textemdash\ bash}{
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep "ERROR" logs/server.log}}
+
+\textcolor{termout}{[09:15:20] }\hl{ERROR}\textcolor{termout}{\ Database connection pool exhausted on port 5432}
+
+\textcolor{termout}{[09:22:45] }\hl{ERROR}\textcolor{termout}{\ Worker node 3 failed health check}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -i "warning" logs/server.log}}
+
+\textcolor{termout}{[09:10:02] }\hl{WARN}\textcolor{termout}{\ \ \ High memory threshold exceeded: 82\%}
+
+\textcolor{termout}{[09:12:30] }\hl{Warning}\textcolor{termout}{: Slow query response time (420ms)}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -n "failed" logs/server.log}}
+
+\textcolor{termperm}{24}\textcolor{termtext}{:}\textcolor{termout}{[09:22:45] ERROR Worker node 3 }\hl{failed}\textcolor{termout}{\ health check}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -v "INFO" logs/server.log | head -n 2}}
+
+\textcolor{termout}{[09:10:02] WARN   High memory threshold exceeded: 82\%}
+
+\textcolor{termout}{[09:15:20] ERROR  Database connection pool exhausted on port 5432}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -r "database" .}}
+
+\textcolor{termdir}{src/main.py}\textcolor{termtext}{:}\textcolor{termout}{DB\_HOST = "}\hl{database}\textcolor{termout}{.internal.net"}
+
+\textcolor{termdir}{docs/notes.txt}\textcolor{termtext}{:}\textcolor{termout}{Remember to run }\hl{database}\textcolor{termout}{\ migrations before deploy}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{grep -rn "TODO" .}}
+
+\textcolor{termdir}{src/utils.py}\textcolor{termtext}{:}\textcolor{termperm}{14}\textcolor{termtext}{:}\textcolor{termout}{\# }\hl{TODO}\textcolor{termout}{: add token authentication}
+
+\textcolor{termdir}{docs/notes.txt}\textcolor{termtext}{:}\textcolor{termperm}{3}\textcolor{termtext}{:}\textcolor{termout}{- }\hl{TODO}\textcolor{termout}{: verify backup cron job}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde/lab5\_search]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+% =========================================================================
+% LAB 6 TERMINALS
+% =========================================================================
+
+\terminalblock{Lab 6 --- Session 1}{Updating Package Lists, Upgrading, and Installing Software}{ratul@firefly: \textasciitilde\ \textemdash\ bash}{
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{sudo apt update}}
+
+\textcolor{termout}{Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease}
+
+\textcolor{termout}{Hit:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease}
+
+\textcolor{termout}{Hit:3 http://security.ubuntu.com/ubuntu noble-security InRelease}
+
+\textcolor{termuser}{Reading package lists... Done}
+
+\textcolor{termuser}{Building dependency tree... Done}
+
+\textcolor{termdir}{All packages are up to date.}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{sudo apt upgrade -y}}
+
+\textcolor{termuser}{Reading package lists... Done}
+
+\textcolor{termout}{0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{sudo apt install -y htop tree}}
+
+\textcolor{termuser}{Reading package lists... Done}
+
+\textcolor{termout}{The following NEW packages will be installed:}
+
+\textcolor{termout}{\ \ \ htop\ tree}
+
+\textcolor{termout}{0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.}
+
+\textcolor{termout}{Need to get 188 kB of archives.}
+
+\textcolor{termout}{Unpacking htop (3.3.0-4build1) ...}
+
+\textcolor{termout}{Unpacking tree (2.1.1-1) ...}
+
+\textcolor{termuser}{Setting up htop (3.3.0-4build1) ...}
+
+\textcolor{termuser}{Setting up tree (2.1.1-1) ...}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\terminalblock{Lab 6 --- Session 2}{Uninstalling Packages, Cleaning Leftovers, and Full Purging}{ratul@firefly: \textasciitilde\ \textemdash\ bash}{
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{which htop tree}}
+
+\textcolor{termout}{/usr/bin/htop}
+
+\textcolor{termout}{/usr/bin/tree}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{sudo apt remove -y tree}}
+
+\textcolor{termuser}{Reading package lists... Done}
+
+\textcolor{termout}{The following packages will be REMOVED:}
+
+\textcolor{termout}{\ \ \ tree}
+
+\textcolor{termout}{0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.}
+
+\textcolor{termout}{Removing tree (2.1.1-1) ...}
+
+\textcolor{termout}{Processing triggers for man-db (2.12.0-4build1) ...}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{sudo apt autoremove -y}}
+
+\textcolor{termuser}{Reading package lists... Done}
+
+\textcolor{termout}{0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{sudo apt purge -y htop}}
+
+\textcolor{termuser}{Reading package lists... Done}
+
+\textcolor{termout}{The following packages will be REMOVED:}
+
+\textcolor{termout}{\ \ \ htop*}
+
+\textcolor{termout}{0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.}
+
+\textcolor{termout}{Removing htop (3.3.0-4build1) ...}
+
+\textcolor{termuser}{Purging configuration files for htop (3.3.0-4build1) ...}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{which htop}}
+
+\textcolor{termhidden}{(no output --- command not found)}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+% =========================================================
+% LAB 7 TERMINALS
+% =========================================================
+
+\terminalblock{Lab 7 --- Session 1}{Identity, System Time, Output Display, and Documentation}{ratul@firefly: \textasciitilde\ \textemdash\ bash}{
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{hostname \&\& whoami}}
+
+\textcolor{termout}{firefly}
+
+\textcolor{termout}{ratul}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{who}}
+
+\textcolor{termout}{ratul\ \ \ \ pts/0\ \ \ \ \ \ \ \ 2026-10-08 09:15 (:0)}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{date}}
+
+\textcolor{termout}{Thu Oct  8 10:30:15 UTC 2026}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{echo "Testing delay..." \&\& sleep 2 \&\& echo "Ready!"}}
+
+\textcolor{termout}{Testing delay...}
+
+\textcolor{termuser}{Ready!}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{clear}}
+
+\textcolor{termhidden}{[Screen cleared successfully]}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{man echo | head -n 4}}
+
+\textcolor{termdir}{\textbf{ECHO(1)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ User Commands\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ECHO(1)}}
+
+\textcolor{termout}{\textbf{NAME}}
+
+\textcolor{termout}{\ \ \ \ \ \ echo - display a line of text}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\terminalblock{Lab 7 --- Session 2}{Command Shortcuts (Alias), Environment Variables, and History}{ratul@firefly: \textasciitilde\ \textemdash\ bash}{
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{alias ll="ls -lh"}}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{ll}}
+
+\textcolor{termout}{total 8.0K}
+
+\textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{4.0K}}\ Oct\ \ 8\ 09:30\ \textcolor{termdir}{\textbf{Documents}}
+
+\textcolor{termperm}{-rw-r--r--}\ 1\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{1.2K}}\ Oct\ \ 8\ 10:12\ \textcolor{termfile}{notes.txt}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{printenv USER SHELL}}
+
+\textcolor{termout}{ratul}
+
+\textcolor{termout}{/bin/bash}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{env | grep -E "USER|HOSTNAME|HOME"}}
+
+\textcolor{termout}{HOME=/home/ratul}
+
+\textcolor{termout}{HOSTNAME=firefly}
+
+\textcolor{termout}{USER=ratul}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{history | tail -n 6}}
+
+\textcolor{termhidden}{\ \ 42\ \ hostname \&\& whoami}
+
+\textcolor{termhidden}{\ \ 43\ \ date}
+
+\textcolor{termhidden}{\ \ 44\ \ echo "Testing delay..." \&\& sleep 2}
+
+\textcolor{termhidden}{\ \ 45\ \ alias ll="ls -lh"}
+
+\textcolor{termhidden}{\ \ 46\ \ printenv USER SHELL}
+
+\textcolor{termhidden}{\ \ 47\ \ history | tail -n 6}
+
+\vspace{0.06cm}
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\end{document}
