@@ -1,6 +1,6 @@
 \documentclass[10pt,a4paper]{article}
 
-\usepackage[a4paper,top=0.8cm,bottom=0.8cm,left=1.2cm,right=1.2cm]{geometry}
+\usepackage[a4paper,top=0.5cm,bottom=0.5cm,left=0.9cm,right=0.9cm]{geometry}
 \usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{calc,shapes.geometric,backgrounds}
@@ -47,7 +47,7 @@
 \definecolor{termfile}{RGB}{31, 41, 55}        % Dark for regular files
 \definecolor{termhidden}{RGB}{107, 114, 128}   % Muted grey for hidden files
 \definecolor{termsize}{RGB}{180, 83, 9}        % Amber for sizes
-\definecolor{termperm}{RGB}{79, 70, 229}       % Indigo for permissions
+\definecolor{termperm}{RGB}{79, 70, 229}     % Indigo for permissions
 \definecolor{termmatch}{RGB}{220, 38, 38}      % Red highlight for matches
 \definecolor{termkey}{RGB}{194, 65, 12}        % Burnt orange for editor keys
 
@@ -64,55 +64,49 @@
 }
 
 \newcommand{\terminalwindow}[2]{%
-\begin{center}
-\vspace{-5pt}
+\par\vspace{-3pt}%
+{\centering
 \begin{tikzpicture}
   % 1. Terminal text on main layer with JetBrains Mono font
   \node[
       text=termtext,
-      font=\terminalfont\fontsize{8.2}{10.4}\selectfont,
+      font=\terminalfont\fontsize{7.2}{8.9}\selectfont,
       align=left,
-      text width=\dimexpr\linewidth-0.95cm\relax,
-      inner xsep=7pt,
-      inner ysep=6pt,
+      text width=\dimexpr\linewidth-0.85cm\relax,
+      inner xsep=5pt,
+      inner ysep=3.5pt,
       anchor=north west
-  ] (body) at (0.30cm, -0.48cm) {#2};
+  ] (body) at (0.26cm, -0.40cm) {#2};
 
   % Coordinates
   \coordinate (topleft) at (0, 0);
-  \coordinate (bottomright) at ($(body.south -| \linewidth, 0) + (0, -5pt)$);
-  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(\linewidth, 0) + (0, -0.24cm)$);
+  \coordinate (bottomright) at ($(body.south -| \linewidth, 0) + (0, -3.5pt)$);
+  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(\linewidth, 0) + (0, -0.20cm)$);
 
   % 2. Background and Title bar on background layer
   \begin{scope}[on background layer]
-    % Light grey terminal body
-    \fill[termbg, rounded corners=6pt] (topleft) rectangle (bottomright);
-
-    % Title bar
+    \fill[termbg, rounded corners=5pt] (topleft) rectangle (bottomright);
     \begin{scope}
-      \clip[rounded corners=6pt] (topleft) rectangle (bottomright);
-      \fill[termbar] (topleft) rectangle (\linewidth, -0.48cm);
-      \draw[termborder, line width=0.5pt] (0, -0.48cm) -- (\linewidth, -0.48cm);
+      \clip[rounded corners=5pt] (topleft) rectangle (bottomright);
+      \fill[termbar] (topleft) rectangle (\linewidth, -0.40cm);
+      \draw[termborder, line width=0.5pt] (0, -0.40cm) -- (\linewidth, -0.40cm);
     \end{scope}
-
-    % Continuous outer border
-    \draw[termborder, line width=0.55pt, rounded corners=6pt] (topleft) rectangle (bottomright);
+    \draw[termborder, line width=0.55pt, rounded corners=5pt] (topleft) rectangle (bottomright);
   \end{scope}
 
   % 3. Window control dots
-  \fill[red!80!black] (0.34cm, -0.24cm) circle (0.065cm);
-  \fill[yellow!80!black] (0.59cm, -0.24cm) circle (0.065cm);
-  \fill[green!75!black] (0.84cm, -0.24cm) circle (0.065cm);
+  \fill[red!80!black] (0.30cm, -0.20cm) circle (0.055cm);
+  \fill[yellow!80!black] (0.52cm, -0.20cm) circle (0.055cm);
+  \fill[green!75!black] (0.74cm, -0.20cm) circle (0.055cm);
 
   % 4. Centered terminal title
   \node[
       text=gray!40!black,
-      font=\sffamily\bfseries\fontsize{7.2}{7.8}\selectfont,
+      font=\sffamily\bfseries\fontsize{6.8}{7.2}\selectfont,
       anchor=center
   ] at (titlecenter) {#1};
-\end{tikzpicture}
-\vspace{-8pt}
-\end{center}
+\end{tikzpicture}\par}%
+\vspace{-3pt}%
 }
 
 \newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
@@ -123,18 +117,41 @@
 \newcommand{\terminalblock}[4]{%
   \par\noindent
   \begin{minipage}{\linewidth}
-    \vspace{3pt}
+    \vspace{1.5pt}
     {\sffamily\bfseries\color{primary}\small #1: \textcolor{darkslate}{#2}}\\[-4pt]
     \terminalwindow{#3}{#4}
-    \vspace{2pt}
+    \vspace{1.5pt}
     \begin{tikzpicture}
       \draw[dashed, gray!40, line width=0.5pt] (0, 0) -- (\linewidth, 0);
     \end{tikzpicture}
   \end{minipage}\par
-  \vspace{4pt}
+  \vspace{2pt}
 }
 
 \begin{document}
+
+% =========================================================================
+% LAB 1 TERMINAL (POST-INSTALLATION VERIFICATION)
+% =========================================================================
+
+\terminalblock{Lab 1 --- Output Demonstration}{Post-Installation System Verification and Directory Listing}{ratul@firefly: \textasciitilde\ \textemdash\ bash}{
+\termprompt\textbf{\textcolor{termcmd}{uname -a}}
+
+\textcolor{termout}{Linux firefly 7.0.0-38-generic \#38-Ubuntu SMP PREEMPT\_DYNAMIC Fri Sep\ \ 4 09:10:14 UTC 2026 x86\_64 GNU/Linux}
+
+\vspace{0.08cm}
+\termprompt\textbf{\textcolor{termcmd}{pwd}}
+
+\textcolor{termout}{/home/ratul}
+
+\vspace{0.08cm}
+\termprompt\textbf{\textcolor{termcmd}{ls}}
+
+\textcolor{termdir}{\textbf{Desktop}}\ \ \ \ \textcolor{termdir}{\textbf{Documents}}\ \ \ \ \textcolor{termdir}{\textbf{Downloads}}\ \ \ \ \textcolor{termdir}{\textbf{Music}}\ \ \ \ \textcolor{termdir}{\textbf{Pictures}}\ \ \ \ \textcolor{termdir}{\textbf{Public}}\ \ \ \ \textcolor{termdir}{\textbf{Templates}}\ \ \ \ \textcolor{termdir}{\textbf{Videos}}\ \ \ \ \textcolor{termdir}{\textbf{snap}}
+
+\vspace{0.08cm}
+\termprompt\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
 
 % =========================================================================
 % LAB 2 TERMINALS

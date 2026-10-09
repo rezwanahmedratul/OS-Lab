@@ -1,0 +1,414 @@
+\documentclass[10pt,a4paper,portrait]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,portrait,margin=0.6in,top=0.52in,bottom=0.52in]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds}
+\usepackage{xcolor}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{grffile}
+
+% =========================================================
+% Palette & Styling (Matching Lab 2-7 System)
+% =========================================================
+\definecolor{primary}{RGB}{24, 43, 73}        % Deep clean navy
+\definecolor{secondary}{RGB}{14, 116, 144}   % Teal accent
+\definecolor{darkslate}{RGB}{30, 41, 59}     % Normal text color
+\definecolor{boxbg}{RGB}{248, 250, 252}      % Soft light box
+\definecolor{bordergray}{RGB}{226, 232, 240} % Light border
+
+% Hyperref setup with elegant colors
+\usepackage[colorlinks=true,linkcolor=primary,urlcolor=secondary,citecolor=primary]{hyperref}
+
+% Terminal Color Scheme: Modern Light Grey Theme
+\definecolor{termbg}{RGB}{246, 248, 250}     % Light grey terminal body
+\definecolor{termbar}{RGB}{229, 231, 235}    % Medium light grey title bar
+\definecolor{termborder}{RGB}{209, 213, 219} % Crisp border line
+\definecolor{termtext}{RGB}{31, 41, 55}      % Dark charcoal text
+\definecolor{termuser}{RGB}{22, 101, 52}     % Dark green for user
+\definecolor{termhost}{RGB}{21, 128, 61}     % Green for host
+\definecolor{termpath}{RGB}{29, 78, 216}     % Blue for directory path
+\definecolor{termcmd}{RGB}{17, 24, 39}       % Bold black for commands
+\definecolor{termout}{RGB}{55, 65, 81}       % Clear dark grey for outputs
+\definecolor{termdir}{RGB}{37, 99, 235}      % Blue for directories
+\definecolor{termfile}{RGB}{31, 41, 55}      % Dark for regular files
+\definecolor{termhidden}{RGB}{107, 114, 128} % Muted grey for hidden files
+\definecolor{termsize}{RGB}{180, 83, 9}      % Amber for sizes
+\definecolor{termperm}{RGB}{79, 70, 229}     % Indigo for permissions
+
+% =========================================================
+% Section Headings
+% =========================================================
+\titleformat{\section}
+  {\color{primary}\large\bfseries\sffamily\raggedright}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{7pt}{2pt}
+
+\titleformat{\subsection}
+  {\color{secondary}\normalsize\bfseries\sffamily\raggedright}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{5pt}{2pt}
+
+% =========================================================
+% Headers and Footers
+% =========================================================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\small\sffamily\color{darkslate} Operating Systems Lab}
+\fancyhead[R]{\small\sffamily\color{darkslate} Lab Report: Ubuntu Installation}
+\fancyfoot{}
+
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% =========================================================
+% Terminal Window Macro
+% =========================================================
+\newcommand{\termprompt}[1][\textasciitilde]{%
+  \textbf{\textcolor{termuser}{ratul}}\textcolor{termtext}{@}\textbf{\textcolor{termhost}{firefly}}\textcolor{termtext}{:}\textbf{\textcolor{termpath}{#1}}\textcolor{termcmd}{\$}\ %
+}
+
+\newcommand{\terminalwindow}[3][\linewidth]{%
+\par\vspace{2pt}%
+{\centering
+\begin{tikzpicture}
+  \node[
+      text=termtext,
+      font=\ttfamily\fontsize{7.2}{9.2}\selectfont,
+      align=left,
+      text width=\dimexpr#1-0.95cm\relax,
+      inner xsep=6pt,
+      inner ysep=6pt,
+      anchor=north west
+  ] (body) at (0.32cm, -0.56cm) {#3};
+
+  \coordinate (topleft) at (0, 0);
+  \coordinate (bottomright) at ($(body.south -| #1, 0) + (0, -5pt)$);
+  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(#1, 0) + (0, -0.28cm)$);
+
+  \begin{scope}[on background layer]
+    \fill[termbg, rounded corners=6pt] (topleft) rectangle (bottomright);
+    \begin{scope}
+      \clip[rounded corners=6pt] (topleft) rectangle (bottomright);
+      \fill[termbar] (topleft) rectangle (#1, -0.56cm);
+      \draw[termborder, line width=0.5pt] (0, -0.56cm) -- (#1, -0.56cm);
+    \end{scope}
+    \draw[termborder, line width=0.6pt, rounded corners=6pt] (topleft) rectangle (bottomright);
+  \end{scope}
+
+  \fill[red!80!black] (0.36cm, -0.28cm) circle (0.07cm);
+  \fill[yellow!80!black] (0.63cm, -0.28cm) circle (0.07cm);
+  \fill[green!75!black] (0.90cm, -0.28cm) circle (0.07cm);
+
+  \node[
+      text=gray!40!black,
+      font=\sffamily\bfseries\fontsize{7.2}{8}\selectfont,
+      anchor=center
+  ] at (titlecenter) {#2};
+\end{tikzpicture}\par}%
+\vspace{2pt}%
+}
+
+% =========================================================
+% Screenshot Box Macro
+% =========================================================
+\newcommand{\stepfigure}[3][6.7cm]{%
+\par\vspace{3pt}%
+{\centering
+\begin{tikzpicture}
+  \node[inner sep=2.5pt, draw=bordergray, line width=0.6pt, rounded corners=5pt, fill=boxbg] {
+    \includegraphics[width=0.76\linewidth, height=#1, keepaspectratio]{#2}
+  };
+\end{tikzpicture}\par}%
+\vspace{3pt}%
+{\centering\small\sffamily\textbf{\color{primary}#3}\par}%
+\vspace{2pt}%
+}
+
+\newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
+
+\begin{document}
+\raggedbottom
+\thispagestyle{firstpage}
+
+% =========================================================
+% Title: Only Experiment Title at the Top
+% =========================================================
+\begin{center}
+  {\Large\bfseries\sffamily\color{primary} Experiment Title: Installation and Configuration of Linux Operating System}\\[3pt]
+  {\normalsize\sffamily\textbf{Topic:} Step-by-Step Installation of Ubuntu Linux via Bootable USB}
+\end{center}
+\vspace{-4pt}
+
+% =========================================================
+% 1. Objective
+% =========================================================
+\section{Objective}
+The objectives of this experiment are:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item Understand the full procedure for installing a modern Linux operating system.
+  \item Create a bootable installation media using an official Ubuntu ISO and Rufus.
+  \item Configure disk partitioning (Root, Swap, EFI) and set up user account security.
+  \item Verify successful operating system deployment using terminal-based commands.
+\end{itemize}
+
+% =========================================================
+% 2. Theoretical Background
+% =========================================================
+\section{Theoretical Background}
+Linux is a free, open-source Unix-like kernel released by Linus Torvalds in 1991. It provides multi-user security, high stability, and modular architecture, powering world servers, supercomputers, cloud infrastructure, and desktop systems.
+
+\subsection{Popular Linux Distributions}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.06}
+\begin{tabularx}{\linewidth}{lp{2.4cm}p{4.2cm}X}
+\toprule
+\textbf{Distribution} & \textbf{Base System} & \textbf{Primary Focus / Use Case} & \textbf{Package Manager} \\
+\midrule
+\textbf{Ubuntu} & Debian & Beginner-friendly desktop, servers, and cloud & APT (\texttt{deb}) \\
+\textbf{Debian} & Independent & Rock-solid stability and open-source standards & APT (\texttt{deb}) \\
+\textbf{Fedora} & Independent & Cutting-edge packages and upstream Linux features & DNF / RPM \\
+\textbf{Kali Linux} & Debian & Cybersecurity, penetration testing, and forensics & APT (\texttt{deb}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+\subsection{Deployment Methods: Bare Metal vs Virtualization}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.06}
+\begin{tabularx}{\linewidth}{p{3.2cm}X}
+\toprule
+\textbf{Method} & \textbf{Simple Explanation} \\
+\midrule
+\textbf{Bare Metal (Direct)} & Installed directly onto the physical computer drive for maximum hardware performance. \\
+\textbf{Dual Boot} & Installed alongside an existing OS (e.g., Windows), letting the user select OS at startup. \\
+\textbf{Virtual Machine (VM)} & Runs inside virtualization software (e.g., VirtualBox), providing safe isolated testing. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+% =========================================================
+% 3. Equipment / Software Requirements
+% =========================================================
+\section{Equipment / Software Requirements}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Target Computer} & PC / Laptop (64-bit x86 architecture) & \textbf{RAM Requirement} & Minimum 4 GB recommended \\
+\textbf{Storage Space} & Minimum 25 GB free disk space & \textbf{Flash Drive} & 8 GB+ USB Flash Drive \\
+\textbf{Target OS ISO} & Ubuntu Desktop (64-bit ISO image) & \textbf{Flashing Tool} & Rufus / BalenaEtcher \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================
+% 4. Procedure / Steps Overview
+% =========================================================
+\section{Procedure / Steps}
+The installation was carried out sequentially through the following 10 steps:
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item Download the official Ubuntu Desktop ISO disk image.
+  \item Write the ISO to a USB flash drive using Rufus to create a bootable drive.
+  \item Boot from USB and select ``Try or Install Ubuntu'' from the GRUB menu.
+  \item Initialize live environment (Ubuntu splash screen and loading spinner).
+  \item Select keyboard layout and choose manual installation for custom partitioning.
+  \item Partition the drive: create EFI System Partition and Root (\cmd{/}) partition.
+  \item Configure user credentials: enter name, computer name, username, and password.
+  \item Review disk partitioning and configuration settings before confirming.
+  \item Execute system installation, package copying, and driver setup.
+  \item Complete installation, remove the USB drive, and reboot into Ubuntu.
+\end{enumerate}
+
+\newpage
+
+% =========================================================
+% Step 1 & Step 2
+% =========================================================
+\subsection{Step 1: Downloading Ubuntu ISO Image}
+Visit the official Ubuntu website (\url{https://ubuntu.com/download/desktop}) and download the latest Ubuntu Desktop 64-bit ISO file. This image contains the complete Linux operating system installer and live environment.
+
+\stepfigure{images/downloading_iso.png}{Figure 1: Downloading Ubuntu Desktop ISO from Official Website}
+
+\vfill
+
+\subsection{Step 2: Creating a Bootable USB Flash Drive}
+Insert a USB flash drive (minimum 8 GB) into the host computer. Open Rufus, select the downloaded Ubuntu ISO file, choose \textbf{GPT} partition scheme for UEFI systems, and click \textbf{START} to write the ISO image to the flash drive.
+
+\stepfigure{{images/create bootable usb.png}}{Figure 2: Writing ISO Image to USB Flash Drive Using Rufus}
+
+\vfill
+\newpage
+
+% =========================================================
+% Step 3 & Step 4
+% =========================================================
+\subsection{Step 3: Selecting ``Try or Install Ubuntu''}
+Insert the bootable USB and restart the computer. Press the Boot Menu key (e.g., \textbf{F12}, \textbf{F9}, or \textbf{Esc}) and select the USB drive. The GNU GRUB bootloader appears on screen. Select \textbf{Try or Install Ubuntu} and press \textbf{Enter}.
+
+\stepfigure{{images/try ubuntu.png}}{Figure 3: GRUB Boot Menu -- Selecting Try or Install Ubuntu}
+
+\vfill
+
+\subsection{Step 4: Booting into the Live Environment}
+After selecting the installation option, the Ubuntu boot splash screen appears with the official logo and spinner while the operating system initializes the live environment into RAM.
+
+\stepfigure{images/booting_from_usb.png}{Figure 4: Ubuntu Boot Splash Screen Initializing from USB}
+
+\vfill
+\newpage
+
+% =========================================================
+% Step 5 & Step 6
+% =========================================================
+\subsection{Step 5: Selecting Manual Installation Type}
+Choose system language and keyboard layout. When prompted for installation type, choose \textbf{Manual installation} (or \textbf{Something else}) to maintain full control over disk partitions and filesystem layout.
+
+\stepfigure{{images/select manual installation.png}}{Figure 5: Selecting Manual Installation for Custom Partitioning}
+
+\vfill
+
+\subsection{Step 6: Disk Partitioning}
+Allocate drive space for the operating system:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \textbf{EFI System Partition:} Size 500 MB (used by UEFI firmware to load the GRUB bootloader).
+  \item \textbf{Root Partition (\cmd{/}):} Remaining space formatted as \textbf{Ext4} journaling filesystem.
+\end{itemize}
+
+\stepfigure{images/partition.png}{Figure 6: Configuring EFI and Root Disk Partitions}
+
+\vfill
+\newpage
+
+% =========================================================
+% Step 7 & Step 8
+% =========================================================
+\subsection{Step 7: Creating User Account and Password}
+Set up user identification and system security:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item Enter your full name and computer hostname.
+  \item Choose a username and a strong security password.
+  \item Select \textbf{Require my password to log in} for administrative privilege protection.
+\end{itemize}
+
+\stepfigure{{images/create account.png}}{Figure 7: Setting Up Username, Computer Hostname, and Password}
+
+\vfill
+
+\subsection{Step 8: Reviewing Installation Configuration}
+Before writing changes to disk, the installer presents a summary of selected partitions, mount points, and timezone settings. Review the list and click \textbf{Install} to confirm changes and begin file writing.
+
+\stepfigure{images/review.png}{Figure 8: Reviewing Partition Summary and Confirming Installation}
+
+\vfill
+\newpage
+
+% =========================================================
+% Step 9 & Step 10
+% =========================================================
+\subsection{Step 9: System Installation Process}
+The installer formats partitions, copies core Linux system files, configures hardware drivers, and sets up localized packages. A progress bar displays real-time setup status.
+
+\stepfigure{{images/installation started.png}}{Figure 9: Automated System Installation and File Extraction}
+
+\vfill
+
+\subsection{Step 10: Completing Installation and System Reboot}
+Once file copying completes, an \textbf{``Installation is complete''} notification appears. Click \textbf{Restart Now}. When prompted by the screen, unplug the USB flash drive and press \textbf{Enter} to restart.
+
+\stepfigure{{images/installation finighed.png}}{Figure 10: Installation Finished Notification and Reboot Prompt}
+
+\vfill
+\newpage
+
+% =========================================================
+% 5. Result / Output Demonstration
+% =========================================================
+\section{Result / Output Demonstration}
+The computer restarts directly into the newly installed Ubuntu Linux system.
+
+\subsection{Desktop Interface Demonstration}
+The machine boots cleanly into the GNOME Desktop Environment, showing the top panel, system dock, application drawer, and desktop workspace.
+
+\stepfigure[4.7cm]{{images/post installation.png}}{Figure 11: Ubuntu Desktop Environment Loaded After First Boot}
+
+\vspace{3pt}
+
+\subsection{Terminal-Based System Verification}
+To confirm proper operating system installation, kernel functionality, and hardware allocation, we opened the Linux terminal and executed standard verification commands:
+
+\terminalwindow{ratul@firefly: \textasciitilde\ \textemdash\ bash}{
+% Command 1: uname -a
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{uname -a}}
+
+\textcolor{termout}{Linux firefly 6.8.0-45-generic \#45-Ubuntu SMP PREEMPT\_DYNAMIC Wed Sep 11 15:25:05 UTC 2024 x86\_64 GNU/Linux}
+
+\vspace{0.06cm}
+% Command 2: lsb_release -a
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{lsb\_release -a}}
+
+\textcolor{termout}{Distributor ID: Ubuntu}
+\textcolor{termout}{Description:    Ubuntu 24.04.1 LTS}
+\textcolor{termout}{Release:        24.04}
+\textcolor{termout}{Codename:       noble}
+
+\vspace{0.06cm}
+% Command 3: whoami
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{whoami}}
+
+\textcolor{termout}{ratul}
+
+\vspace{0.06cm}
+% Command 4: df -h /
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{df -h /}}
+
+\textcolor{termout}{Filesystem      Size  Used Avail Use\% Mounted on}
+\textcolor{termout}{/dev/nvme0n1p2   59G  8.2G   48G  15\% /}
+
+\vspace{0.10cm}
+% Active cursor
+\termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\vspace{2pt}\noindent\textbf{Explanation of Verification Outputs:}\par\vspace{1pt}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \cmd{uname -a}: Confirmed Linux kernel version \texttt{6.8.0-45-generic} on 64-bit architecture.
+  \item \cmd{lsb\_release -a}: Verified official distribution name (\texttt{Ubuntu 24.04.1 LTS noble}).
+  \item \cmd{whoami}: Confirmed active session under newly created user \texttt{ratul}.
+  \item \cmd{df -h /}: Confirmed root filesystem mounted on \texttt{/dev/nvme0n1p2} with 48 GB available space.
+\end{itemize}
+
+% =========================================================
+% 6. Conclusion
+% =========================================================
+\section{Conclusion}
+Key takeaways from this lab:
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item Successfully created a bootable USB drive using Rufus and booted into Ubuntu via UEFI.
+  \item Configured manual disk partitioning with dedicated EFI and Ext4 Root filesystems.
+  \item Created a secure user account and verified system health through terminal commands.
+\end{enumerate}
+
+\end{document}

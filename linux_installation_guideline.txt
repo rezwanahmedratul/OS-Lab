@@ -1,0 +1,37 @@
+Guideline for Writing a Lab Report on Linux Installation
+1. Title
+Experiment Title: Installation and Configuration of Linux Operating System
+2. Objective
+Clearly state the purpose of the experiment.
+Example:
+The objective of this lab is to understand the process of installing a Linux operating system, configure its environment, and verify successful installation through terminal-based commands.
+3. Theoretical Background
+Provide a brief explanation of:
+    • What is Linux and why it is widely used.
+    • Different Linux distributions (e.g., Ubuntu, Fedora, Debian, Kali).
+    • System requirements for installation.
+    • Concepts of dual booting and virtualization (if applicable).
+Include necessary diagrams or screenshots to support your explanation.
+4. Equipment / Software Requirements
+List the hardware and software needed for the installation.
+Example:
+    • Hardware: Computer or laptop (minimum 2GB RAM, 20GB storage)
+    • Software: Linux ISO image (e.g., Ubuntu 22.04 LTS)
+    • Tools: Bootable USB creator (e.g., Rufus, BalenaEtcher) or VirtualBox
+5. Procedure / Steps
+Write down the installation steps sequentially.
+Include screenshots of each major step with brief descriptions.
+Example outline:
+    1. Downloading Linux ISO file
+    2. Creating a bootable USB
+    3. Booting from USB or Virtual Machine setup
+    4. Partitioning disk space
+    5. Selecting installation type and region
+    6. Creating user and password
+    7. Finalizing installation
+    8. Post-installation verification (e.g., using uname -a, ls, pwd)
+Each step should have a short explanation and relevant screenshot.
+6. Result / Output
+Show the final installed Linux interface (desktop view or terminal view).
+
+
