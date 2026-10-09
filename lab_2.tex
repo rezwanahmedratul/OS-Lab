@@ -1,7 +1,7 @@
 \documentclass[10pt,a4paper,portrait]{article}
 
 \usepackage[utf8]{inputenc}
-\usepackage[a4paper,portrait,margin=0.68in,top=0.65in,bottom=0.68in]{geometry}
+\usepackage[a4paper,portrait,margin=0.6in,top=0.52in,bottom=0.52in]{geometry}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds}
 \usepackage{xcolor}
@@ -43,14 +43,14 @@
 % Section Headings
 % =========================================================
 \titleformat{\section}
-  {\color{primary}\large\bfseries\sffamily}
+  {\color{primary}\large\bfseries\sffamily\raggedright}
   {\thesection.}{0.5em}{}
-\titlespacing*{\section}{0pt}{8pt}{3pt}
+\titlespacing*{\section}{0pt}{7pt}{2pt}
 
 \titleformat{\subsection}
-  {\color{secondary}\normalsize\bfseries\sffamily}
+  {\color{secondary}\normalsize\bfseries\sffamily\raggedright}
   {\thesubsection}{0.5em}{}
-\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+\titlespacing*{\subsection}{0pt}{5pt}{2pt}
 
 % =========================================================
 % Headers and Footers
@@ -78,7 +78,8 @@
 }
 
 \newcommand{\terminalwindow}[3][\linewidth]{%
-\begin{center}
+\par\vspace{2pt}%
+{\centering
 \begin{tikzpicture}
   % 1. Terminal text on main layer
   \node[
@@ -86,14 +87,14 @@
       font=\ttfamily\fontsize{7.2}{9.2}\selectfont,
       align=left,
       text width=\dimexpr#1-0.95cm\relax,
-      inner xsep=7pt,
-      inner ysep=7pt,
+      inner xsep=6pt,
+      inner ysep=6pt,
       anchor=north west
   ] (body) at (0.32cm, -0.56cm) {#3};
 
   % Coordinates
   \coordinate (topleft) at (0, 0);
-  \coordinate (bottomright) at ($(body.south -| #1, 0) + (0, -6pt)$);
+  \coordinate (bottomright) at ($(body.south -| #1, 0) + (0, -5pt)$);
   \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(#1, 0) + (0, -0.28cm)$);
 
   % 2. Background and Title bar on background layer
@@ -123,14 +124,14 @@
       font=\sffamily\bfseries\fontsize{7.2}{8}\selectfont,
       anchor=center
   ] at (titlecenter) {#2};
-\end{tikzpicture}
-\end{center}
-\vspace{-6pt}
+\end{tikzpicture}\par}%
+\vspace{2pt}%
 }
 
 \newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
 
 \begin{document}
+\raggedbottom
 \thispagestyle{firstpage}
 
 % =========================================================
@@ -222,10 +223,8 @@ Running \cmd{ls -l} shows six key fields for each file:
 \end{tabularx}
 \end{table}
 
-\newpage
-
 % =========================================================
-% 5. Procedure / Steps
+% 4. Procedure / Steps
 % =========================================================
 \section{Procedure / Steps}
 Steps followed in this experiment:
@@ -239,8 +238,10 @@ Steps followed in this experiment:
   \item Return to home directory (\cmd{cd \textasciitilde}).
 \end{enumerate}
 
+\newpage
+
 % =========================================================
-% 6. Result / Output Demonstration (Session 1)
+% 5. Result / Output Demonstration (Session 1)
 % =========================================================
 \section{Result / Output Demonstration}
 All commands were executed in the terminal under user \texttt{ratul} on machine \texttt{firefly}.
@@ -253,19 +254,19 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 
 \textcolor{termout}{ratul}
 
-\vspace{0.14cm}
+\vspace{0.06cm}
 % Command 2: pwd
 \termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{pwd}}
 
 \textcolor{termout}{/home/ratul}
 
-\vspace{0.14cm}
+\vspace{0.06cm}
 % Command 3: ls in home
 \termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{ls}}
 
 \textcolor{termdir}{\textbf{Desktop}}\ \ \ \ \textcolor{termdir}{\textbf{Documents}}\ \ \ \ \textcolor{termdir}{\textbf{Downloads}}\ \ \ \ \textcolor{termdir}{\textbf{lab\_demo}}\ \ \ \ \textcolor{termdir}{\textbf{Music}}\ \ \ \ \textcolor{termdir}{\textbf{Pictures}}\ \ \ \ \textcolor{termdir}{\textbf{Videos}}
 
-\vspace{0.14cm}
+\vspace{0.06cm}
 % Command 4: cd lab_demo
 \termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{cd lab\_demo}}
 
@@ -275,13 +276,13 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 
 \textcolor{termout}{/home/ratul/lab\_demo}
 
-\vspace{0.14cm}
+\vspace{0.06cm}
 % Command 6: ls inside demo
 \termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls}}
 
 \textcolor{termdir}{\textbf{backups}}\ \ \ \ \textcolor{termfile}{data.csv}\ \ \ \ \textcolor{termfile}{notes.txt}\ \ \ \ \textcolor{termfile}{report.pdf}\ \ \ \ \textcolor{termdir}{\textbf{scripts}}
 
-\vspace{0.14cm}
+\vspace{0.06cm}
 % Command 7: ls -a
 \termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -a}}
 
@@ -292,17 +293,15 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 \termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
 }
 
-\paragraph{Explanation of Session 1 Results:}
+\vspace{2pt}\noindent\textbf{Explanation of Session 1 Results:}\par\vspace{1pt}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
   \item \cmd{whoami} and \cmd{pwd}: Identified user \texttt{ratul} at \texttt{/home/ratul}.
   \item \cmd{cd lab\_demo}: Moved into folder; prompt updated to \texttt{\textasciitilde/lab\_demo}.
   \item \cmd{ls} vs \cmd{ls -a}: \cmd{ls} shows visible files; \cmd{-a} reveals hidden files (\texttt{.lab\_profile}, \texttt{.secret.key}) and directory links (\texttt{.}, \texttt{..}).
 \end{itemize}
 
-\newpage
-
 % =========================================================
-% 6. Result / Output Demonstration (Session 2)
+% 5. Result / Output Demonstration (Session 2)
 % =========================================================
 \subsection{Session 2: Inspecting File Details, Easy Sizes, and Returning Home}
 
@@ -322,7 +321,7 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 
 \textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
 
-\vspace{0.14cm}
+\vspace{0.06cm}
 % Command 9: ls -lh
 \termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -lh}}
 
@@ -338,7 +337,7 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 
 \textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \textcolor{termsize}{\textbf{4.0K}}\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
 
-\vspace{0.14cm}
+\vspace{0.06cm}
 % Command 10: ls -la
 \termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{ls -la}}
 
@@ -362,7 +361,7 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 
 \textcolor{termperm}{drwxr-xr-x}\ 2\ \textcolor{termuser}{ratul}\ \textcolor{termhost}{users}\ \ \ \ \ \ \ 4096\ Oct\ \ 8\ 10:18\ \textcolor{termdir}{\textbf{scripts}}
 
-\vspace{0.14cm}
+\vspace{0.06cm}
 % Command 11: cd ~
 \termprompt[\textasciitilde/lab\_demo]\textbf{\textcolor{termcmd}{cd \textasciitilde}}
 
@@ -377,7 +376,7 @@ All commands were executed in the terminal under user \texttt{ratul} on machine 
 \termprompt[\textasciitilde]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
 }
 
-\paragraph{Explanation of Session 2 Results:}
+\vspace{2pt}\noindent\textbf{Explanation of Session 2 Results:}\par\vspace{1pt}
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
   \item \cmd{ls -l} vs \cmd{ls -lh}: \cmd{-l} shows raw bytes; \cmd{-lh} converts to human-readable units (\texttt{14M}).
   \item \cmd{ls -la}: Shows full details, including permissions on hidden files (\texttt{.secret.key}).

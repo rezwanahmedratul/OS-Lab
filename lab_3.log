@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.9.15)  8 OCT 2026 19:14
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.9.15)  9 OCT 2026 03:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -694,15 +694,15 @@ LaTeX Font Info:    ... okay on input line 134.
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(51.21504pt, 495.07779pt, 51.21504pt)
-* v-part:(T,H,B)=(51.21504pt, 742.61676pt, 51.21504pt)
+* h-part:(L,W,R)=(42.67912pt, 512.14963pt, 42.67912pt)
+* v-part:(T,H,B)=(38.41139pt, 768.22406pt, 38.41139pt)
 * \paperwidth=597.50787pt
 * \paperheight=845.04684pt
-* \textwidth=495.07779pt
-* \textheight=742.61676pt
-* \oddsidemargin=-21.05495pt
-* \evensidemargin=-21.05495pt
-* \topmargin=-58.05495pt
+* \textwidth=512.14963pt
+* \textheight=768.22406pt
+* \oddsidemargin=-29.59087pt
+* \evensidemargin=-29.59087pt
+* \topmargin=-70.8586pt
 * \headheight=12.0pt
 * \headsep=25.0pt
 * \topskip=10.0pt
@@ -770,7 +770,7 @@ Package hyperref Info: Link coloring ON on input line 134.
 \openout4 = `lab_3.out'.
 
 LaTeX Font Info:    Trying to load font information for T1+lmss on input line 1
-41.
+42.
  (/usr/share/texmf/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -779,13 +779,13 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
-52.
+53.
 
 (/usr/share/texmf/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-52.
+53.
 
 (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
@@ -795,13 +795,13 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 152.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 153.
 
 (/usr/share/texmf/tex/latex/lm/ot1lmr.fd)
 (/usr/share/texmf/tex/latex/lm/omllmm.fd)
 (/usr/share/texmf/tex/latex/lm/omslmsy.fd)
 (/usr/share/texmf/tex/latex/lm/omxlmex.fd)
-Underfull \hbox (badness 2503) in paragraph at lines 182--182
+Underfull \hbox (badness 2503) in paragraph at lines 183--183
 []|\T1/lmr/m/n/8 (+20) Force delete folder and files with-out
  []
 
@@ -810,18 +810,18 @@ Underfull \hbox (badness 2503) in paragraph at lines 182--182
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/
 dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <7.2> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 273.
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 274.
 
-Overfull \hbox (0.6pt too wide) in paragraph at lines 273--273
+Overfull \hbox (0.6pt too wide) in paragraph at lines 274--274
  [] 
  []
 
-[2]
-Overfull \hbox (0.6pt too wide) in paragraph at lines 332--332
+
+Overfull \hbox (0.6pt too wide) in paragraph at lines 331--331
  [] 
  []
 
-[3] (./lab_3.aux)
+[2] (./lab_3.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -830,13 +830,13 @@ Package rerunfilecheck Info: File `lab_3.out' has not changed.
 (rerunfilecheck)             Checksum: 1CF554FFDFA53989266506B59455B6E8;2184.
  ) 
 Here is how much of TeX's memory you used:
- 23503 strings out of 476139
- 438721 string characters out of 5794409
- 1946975 words of memory out of 5000000
- 45026 multiletter control sequences out of 15000+600000
+ 23498 strings out of 476139
+ 438657 string characters out of 5794409
+ 1950975 words of memory out of 5000000
+ 45024 multiletter control sequences out of 15000+600000
  619123 words of font info for 107 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
- 102i,12n,107p,1002b,784s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 102i,12n,107p,1002b,736s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/ty
 pe1/public/lm/lmbx8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr
 /share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/publi
@@ -844,10 +844,10 @@ c/lm/lmss10.pfb></usr/share/texmf/fonts/type1/public/lm/lmss9.pfb></usr/share/t
 exmf/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf/fonts/type1/public/lm
 /lmtk10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texm
 f/fonts/type1/public/lm/lmtt8.pfb>
-Output written on lab_3.pdf (3 pages, 273282 bytes).
+Output written on lab_3.pdf (2 pages, 271726 bytes).
 PDF statistics:
- 138 PDF objects out of 1000 (max. 8388607)
- 110 compressed objects within 2 object streams
- 26 named destinations out of 1000 (max. 500000)
+ 131 PDF objects out of 1000 (max. 8388607)
+ 104 compressed objects within 2 object streams
+ 23 named destinations out of 1000 (max. 500000)
  42077 words of extra memory for PDF output out of 42996 (max. 10000000)
 
