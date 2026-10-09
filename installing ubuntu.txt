@@ -1,0 +1,4 @@
+reboot and keep pressing boot menu key. del,esc,f10,f9 etc. 
+then select ubuntu
+then select try or install ubuntu
+select m

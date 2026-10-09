@@ -13,8 +13,8 @@
 
 \pagestyle{empty}
 
-% Clean card without borders (sized to fit 3 rows on Page 1)
-\newcommand{\screenshotcard}[4][8.5cm]{%
+% Clean card without borders
+\newcommand{\screenshotcard}[4][13.6cm]{%
 \begin{minipage}[t][#1][t]{0.49\linewidth}
   \raggedright
   {\small\sffamily\bfseries\color{primary}#2\ \textemdash\ \color{secondary}#4}\par\vspace{2pt}
@@ -27,37 +27,37 @@
 \begin{document}
 
 % =========================================================
-% PAGE 1: Steps 1 to 6 (3 Rows x 2 Columns)
+% PAGE 1: Steps 1 to 4 (2 Rows x 2 Columns)
 % =========================================================
 \noindent
-\screenshotcard[9.1cm]{Step 1}{images/downloading_iso.png}{Figure 1: Downloading Ubuntu Desktop ISO}\hfill
-\screenshotcard[9.1cm]{Step 2}{{images/create bootable usb.png}}{Figure 2: Writing ISO to USB using Rufus}
-
-\vspace{0.3cm}
-
-\noindent
-\screenshotcard[9.1cm]{Step 3}{{images/try ubuntu.png}}{Figure 3: GRUB Menu -- Try or Install Ubuntu}\hfill
-\screenshotcard[9.1cm]{Step 4}{images/booting_from_usb.png}{Figure 4: Ubuntu Boot Splash Screen}
-
-\vspace{0.3cm}
-
-\noindent
-\screenshotcard[9.1cm]{Step 5}{{images/select manual installation.png}}{Figure 5: Selecting Manual Installation}\hfill
-\screenshotcard[9.1cm]{Step 6}{images/partition.png}{Figure 6: Configuring Disk Partitions}
-
-\newpage
-
-% =========================================================
-% PAGE 2: Steps 7 to 10 (2 Rows x 2 Columns)
-% =========================================================
-\noindent
-\screenshotcard[13.6cm]{Step 7}{{images/create account.png}}{Figure 7: Setting Up User Account}\hfill
-\screenshotcard[13.6cm]{Step 8}{images/review.png}{Figure 8: Reviewing Installation Settings}
+\screenshotcard[13.6cm]{Step 1}{images/downloading_iso.png}{Figure 1: Downloading Ubuntu Desktop ISO}\hfill
+\screenshotcard[13.6cm]{Step 2}{{images/create bootable usb.png}}{Figure 2: Writing ISO to USB using Rufus}
 
 \vspace{0.5cm}
 
 \noindent
-\screenshotcard[13.6cm]{Step 9}{{images/installation started.png}}{Figure 9: System Installation Progress}\hfill
-\screenshotcard[13.6cm]{Step 10}{{images/installation finighed.png}}{Figure 10: Installation Complete Notification}
+\screenshotcard[13.6cm]{Step 3}{{images/try ubuntu.png}}{Figure 3: GRUB Menu -- Try or Install Ubuntu}\hfill
+\screenshotcard[13.6cm]{Step 4}{images/booting_from_usb.png}{Figure 4: Ubuntu Boot Splash Screen}
+
+\newpage
+
+% =========================================================
+% PAGE 2: Steps 5 to 10 (3 Rows x 2 Columns)
+% =========================================================
+\noindent
+\screenshotcard[9.0cm]{Step 5}{{images/select manual installation.png}}{Figure 5: Selecting Manual Installation}\hfill
+\screenshotcard[9.0cm]{Step 6}{images/partition.png}{Figure 6: Configuring Disk Partitions}
+
+\vspace{0.3cm}
+
+\noindent
+\screenshotcard[9.0cm]{Step 7}{{images/create account.png}}{Figure 7: Setting Up User Account}\hfill
+\screenshotcard[9.0cm]{Step 8}{images/review.png}{Figure 8: Reviewing Installation Settings}
+
+\vspace{0.3cm}
+
+\noindent
+\screenshotcard[9.0cm]{Step 9}{{images/installation started.png}}{Figure 9: System Installation Progress}\hfill
+\screenshotcard[9.0cm]{Step 10}{{images/installation finighed.png}}{Figure 10: Installation Complete Notification}
 
 \end{document}
