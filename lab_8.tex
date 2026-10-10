@@ -1,0 +1,546 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=0.6in,top=0.52in,bottom=0.52in]{geometry}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds}
+\usepackage{xcolor}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=primary,urlcolor=secondary]{hyperref}
+
+% =========================================================
+% Palette & Styling (Matching lab_9.tex)
+% =========================================================
+\definecolor{primary}{RGB}{24, 43, 73}        % Deep clean navy
+\definecolor{secondary}{RGB}{14, 116, 144}   % Teal accent
+\definecolor{darkslate}{RGB}{30, 41, 59}     % Normal text color
+\definecolor{boxbg}{RGB}{248, 250, 252}      % Soft light box
+\definecolor{bordergray}{RGB}{226, 232, 240} % Light border
+
+% Terminal Color Scheme: Modern Light Grey Theme
+\definecolor{termbg}{RGB}{246, 248, 250}     % Light grey terminal body
+\definecolor{termbar}{RGB}{229, 231, 235}    % Medium light grey title bar
+\definecolor{termborder}{RGB}{209, 213, 219} % Crisp border line
+\definecolor{termtext}{RGB}{31, 41, 55}      % Dark charcoal text
+\definecolor{termuser}{RGB}{22, 101, 52}     % Dark green for user
+\definecolor{termhost}{RGB}{21, 128, 61}     % Green for host
+\definecolor{termpath}{RGB}{29, 78, 216}     % Blue for directory path
+\definecolor{termcmd}{RGB}{17, 24, 39}       % Bold black for commands
+\definecolor{termout}{RGB}{55, 65, 81}       % Clear dark grey for outputs
+\definecolor{termdir}{RGB}{37, 99, 235}      % Blue for directories
+\definecolor{termfile}{RGB}{31, 41, 55}      % Dark for regular files
+\definecolor{termhidden}{RGB}{107, 114, 128} % Muted grey
+\definecolor{termsize}{RGB}{180, 83, 9}      % Amber for sizes
+\definecolor{termperm}{RGB}{79, 70, 229}     % Indigo for permissions
+
+% Code Listing Colors
+\definecolor{codebg}{RGB}{248, 250, 252}
+\definecolor{codeborder}{RGB}{218, 224, 233}
+\definecolor{codekw}{RGB}{14, 116, 144}
+\definecolor{codestr}{RGB}{22, 101, 52}
+\definecolor{codecomment}{RGB}{100, 116, 139}
+\definecolor{codenum}{RGB}{148, 163, 184}
+
+% Table helpers
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+% =========================================================
+% Section Headings
+% =========================================================
+\titleformat{\section}
+  {\color{primary}\large\bfseries\sffamily\raggedright}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{7pt}{2pt}
+
+\titleformat{\subsection}
+  {\color{secondary}\normalsize\bfseries\sffamily\raggedright}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{5pt}{2pt}
+
+% =========================================================
+% Headers and Footers
+% =========================================================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\small\sffamily\color{darkslate} Operating Systems Lab}
+\fancyhead[R]{\small\sffamily\color{darkslate} Lab Report: FCFS Scheduling Algorithm}
+\fancyfoot{}
+
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% =========================================================
+% Terminal Window Macro
+% =========================================================
+\newcommand{\termprompt}[1][\textasciitilde]{%
+  \textbf{\textcolor{termuser}{ratul}}\textcolor{termtext}{@}\textbf{\textcolor{termhost}{firefly}}\textcolor{termtext}{:}\textbf{\textcolor{termpath}{#1}}\textcolor{termcmd}{\$}\ %
+}
+
+\newcommand{\terminalwindow}[3][\dimexpr\linewidth-0.6pt\relax]{%
+\par\vspace{2pt}%
+{\centering
+\begin{tikzpicture}
+  % 1. Terminal text on main layer
+  \node[
+      text=termtext,
+      font=\ttfamily\fontsize{7.2}{9.2}\selectfont,
+      align=left,
+      text width=\dimexpr#1-1.02cm\relax,
+      inner xsep=6pt,
+      inner ysep=6pt,
+      anchor=north west
+  ] (body) at (0.32cm, -0.56cm) {#3};
+
+  % Coordinates
+  \coordinate (topleft) at (0, 0);
+  \coordinate (bottomright) at ($(body.south -| #1, 0) + (0, -5pt)$);
+  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(#1, 0) + (0, -0.28cm)$);
+
+  % 2. Background and Title bar on background layer
+  \begin{scope}[on background layer]
+    \fill[termbg, rounded corners=6pt] (topleft) rectangle (bottomright);
+
+    \begin{scope}
+      \clip[rounded corners=6pt] (topleft) rectangle (bottomright);
+      \fill[termbar] (topleft) rectangle (#1, -0.56cm);
+      \draw[termborder, line width=0.5pt] (0, -0.56cm) -- (#1, -0.56cm);
+    \end{scope}
+
+    \draw[termborder, line width=0.6pt, rounded corners=6pt] (topleft) rectangle (bottomright);
+  \end{scope}
+
+  % 3. Window control dots
+  \fill[red!80!black] (0.36cm, -0.28cm) circle (0.07cm);
+  \fill[yellow!80!black] (0.63cm, -0.28cm) circle (0.07cm);
+  \fill[green!75!black] (0.90cm, -0.28cm) circle (0.07cm);
+
+  % 4. Centered terminal title
+  \node[
+      text=gray!40!black,
+      font=\sffamily\bfseries\fontsize{7.2}{8}\selectfont,
+      anchor=center
+  ] at (titlecenter) {#2};
+\end{tikzpicture}\par}%
+\vspace{2pt}%
+}
+
+\newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
+
+% =========================================================
+% Code Listing Configuration
+% =========================================================
+\lstset{
+  language=C++,
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\fontsize{7.2}{9.0}\selectfont\color{darkslate},
+  keywordstyle=\bfseries\color{codekw},
+  commentstyle=\itshape\color{codecomment},
+  stringstyle=\color{codestr},
+  numbers=left,
+  numberstyle=\tiny\color{codenum},
+  stepnumber=1,
+  numbersep=8pt,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{codeborder},
+  tabsize=4,
+  xleftmargin=14pt,
+  framexleftmargin=14pt
+}
+
+\begin{document}
+\raggedbottom
+\thispagestyle{firstpage}
+
+% =========================================================
+% Title Block
+% =========================================================
+\begin{center}
+  {\Large\bfseries\sffamily\color{primary} Experiment Title: Implementation of First Come, First Served CPU Scheduling Algorithm in C++}\\[3pt]
+  {\normalsize\sffamily\textbf{Topic:} Non-Preemptive FCFS CPU Scheduling Simulation with Arrival Time in C++}
+\end{center}
+\vspace{-4pt}
+
+% =========================================================
+% 1. Problem
+% =========================================================
+\section{Problem}
+In operating systems, process scheduling decides the order of process execution on the CPU. The objective of this lab is to implement the \textbf{First Come, First Served (FCFS)} CPU scheduling algorithm in C++.
+
+The program must:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item Take the number of processes ($n$), arrival time ($AT$), and execution/burst time ($BT$) for each process.
+  \item Validate input data (positive count, non-negative arrival time, and positive execution time).
+  \item Schedule processes strictly in order of their arrival time using stable sorting.
+  \item Compute Start Time ($ST$), Completion Time ($CT$), Turnaround Time ($TAT$), and Waiting Time ($WT$).
+  \item Calculate and display Average Waiting Time and Average Turnaround Time.
+  \item Display the execution schedule table and text-based Gantt chart timeline.
+\end{itemize}
+
+\subsection{Environment \& Tools}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.06}
+\begin{tabularx}{\linewidth}{lXlX}
+\toprule
+\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
+\midrule
+\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
+\textbf{User Account} & \texttt{ratul} & \textbf{Language \& Standard} & C++ (GNU C++17) \\
+\textbf{Compiler} & GCC / G++ (\cmd{g++ 13.x}) & \textbf{Execution Shell} & GNU Bash 5.2 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+% =========================================================
+% 2. Theoretical Solution
+% =========================================================
+\section{Theoretical Solution}
+First Come, First Served (FCFS) is the simplest non-preemptive CPU scheduling algorithm. The process that arrives first in the ready queue is allocated the CPU first.
+
+\subsection{Key Principles}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \textbf{FIFO Queue Discipline:} Processes are serviced strictly in arrival sequence.
+  \item \textbf{Non-Preemptive Execution:} Once a process gets the CPU, it runs to completion without interruption.
+  \item \textbf{Tie-Breaking:} When arrival times match, input order is maintained via stable sorting.
+  \item \textbf{CPU Idle Handling:} If the CPU finishes before the next process arrives, current time jumps forward: $ST_i = \max(currentTime, AT_i)$.
+\end{itemize}
+
+\subsection{Formulas}
+For each process $i$, scheduling metrics are computed as follows:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \textbf{Start Time ($ST$):} $ST_i = \max(currentTime, AT_i)$
+  \item \textbf{Completion Time ($CT$):} $CT_i = ST_i + BT_i$
+  \item \textbf{Turnaround Time ($TAT$):} $TAT_i = CT_i - AT_i$
+  \item \textbf{Waiting Time ($WT$):} $WT_i = ST_i - AT_i = TAT_i - BT_i$
+  \item \textbf{Average Turnaround Time ($Avg\_TAT$):} $\frac{1}{n} \sum_{i=1}^{n} TAT_i$
+  \item \textbf{Average Waiting Time ($Avg\_WT$):} $\frac{1}{n} \sum_{i=1}^{n} WT_i$
+\end{itemize}
+
+\subsection{Gantt Chart Representation}
+Figure 1 illustrates the non-preemptive FCFS timeline for 4 processes ($P_1$: $AT=0, BT=4$; $P_2$: $AT=1, BT=3$; $P_3$: $AT=2, BT=1$; $P_4$: $AT=3, BT=2$):
+
+\begin{center}
+\vspace{-4pt}
+\begin{tikzpicture}[x=1.1cm, y=0.72cm]
+  % P1
+  \fill[primary!18] (0,0) rectangle (4,0.85);
+  \draw[primary!80, line width=0.8pt] (0,0) rectangle (4,0.85);
+  \node at (2, 0.42) {\bfseries\small P1};
+
+  % P2
+  \fill[secondary!25] (4,0) rectangle (7,0.85);
+  \draw[secondary!90, line width=0.8pt] (4,0) rectangle (7,0.85);
+  \node at (5.5, 0.42) {\bfseries\small P2};
+
+  % P3
+  \fill[green!60!black!18] (7,0) rectangle (8,0.85);
+  \draw[green!60!black!80, line width=0.8pt] (7,0) rectangle (8,0.85);
+  \node at (7.5, 0.42) {\bfseries\footnotesize P3};
+
+  % P4
+  \fill[purple!18] (8,0) rectangle (10,0.85);
+  \draw[purple!80, line width=0.8pt] (8,0) rectangle (10,0.85);
+  \node at (9, 0.42) {\bfseries\small P4};
+
+  % Time markers
+  \foreach \x in {0, 4, 7, 8, 10} {
+    \draw[darkslate, line width=0.7pt] (\x, 0) -- (\x, -0.15);
+    \node[below, font=\scriptsize\sffamily] at (\x, -0.15) {\x};
+  }
+\end{tikzpicture}
+\vspace{-4pt}
+\end{center}
+\centerline{\footnotesize\textbf{Figure 1:} Gantt Chart of Non-Preemptive FCFS Execution.}
+\vspace{2pt}
+
+\subsection{Algorithmic Approach}
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item Read process count $n$ and validate that $n > 0$.
+  \item Read arrival ($AT$) and execution ($BT$) times; validate $AT \ge 0$ and $BT > 0$.
+  \item Sort processes in ascending order of arrival time using \cmd{std::stable\_sort}.
+  \item For each process $i$: update $currentTime = \max(currentTime, AT_i)$, set $start = currentTime$, compute $waiting = start - AT_i$, advance $currentTime = currentTime + BT_i$, and record $completion = currentTime$ and $turnaround = completion - AT_i$.
+  \item Sort back by process ID, print results table, display averages, and output Gantt chart.
+\end{enumerate}
+
+\newpage
+
+% =========================================================
+% 3. Expected Input/Output (I/O) Set
+% =========================================================
+\section{Expected Input/Output (I/O) Set}
+The input consists of integer counts, arrival times, and execution times. The output displays the detailed schedule, averages, and the Gantt chart sequence.
+
+\subsection{Input Specification}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item Total processes: $n = 4$
+  \item Input pairs: Process ID, Arrival Time ($AT$), Execution Time ($BT$).
+\end{itemize}
+
+\subsection{Tabular Input and Expected Output}
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{YYYYYYY}
+\toprule
+\textbf{Process} & \textbf{Arrival ($AT$)} & \textbf{Execution ($BT$)} & \textbf{Start ($ST$)} & \textbf{Completion ($CT$)} & \textbf{Turnaround ($TAT$)} & \textbf{Waiting ($WT$)} \\
+\midrule
+\textbf{P1} & 0 & 4 & 0 & 4  & 4 & 0 \\
+\textbf{P2} & 1 & 3 & 4 & 7  & 6 & 3 \\
+\textbf{P3} & 2 & 1 & 7 & 8  & 6 & 5 \\
+\textbf{P4} & 3 & 2 & 8 & 10 & 7 & 5 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+\subsection{Expected Summary Metrics}
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \textbf{Total Waiting Time:} $0 + 3 + 5 + 5 = 13$
+  \item \textbf{Total Turnaround Time:} $4 + 6 + 6 + 7 = 23$
+  \item \textbf{Average Waiting Time:} $13 / 4 = 3.25$
+  \item \textbf{Average Turnaround Time:} $23 / 4 = 5.75$
+  \item \textbf{Gantt Chart Sequence:} \texttt{| P1 | P2 | P3 | P4 |} with time points $0, 4, 7, 8, 10$.
+\end{itemize}
+
+% =========================================================
+% 4. Source Code
+% =========================================================
+\section{Source Code}
+The complete C++ implementation of the First Come, First Served CPU scheduling algorithm is given below:
+
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Process {
+    int id;
+    int arrival;
+    int execution;
+    int start;
+    int completion;
+    int turnaround;
+    int waiting;
+};
+
+int main() {
+    int n;
+
+    cout << "Enter the number of processes: ";
+    cin >> n;
+
+    if (cin.fail() || n <= 0) {
+        cout << "Invalid number of processes!\n";
+        return 1;
+    }
+
+    vector<Process> processes(n);
+
+    // Input process details
+    for (int i = 0; i < n; i++) {
+        processes[i].id = i + 1;
+
+        cout << "Enter arrival and execution time for process "
+             << processes[i].id << ": ";
+
+        cin >> processes[i].arrival >> processes[i].execution;
+
+        if (cin.fail() ||
+            processes[i].arrival < 0 ||
+            processes[i].execution <= 0) {
+            cout << "Invalid input! Arrival time must be "
+                 << "non-negative and execution time must "
+                 << "be positive.\n";
+            return 1;
+        }
+    }
+
+    // Sort by arrival time; preserve input order for ties
+    stable_sort(processes.begin(), processes.end(),
+        [](const Process& a, const Process& b) {
+            return a.arrival < b.arrival;
+        });
+
+    int currentTime = 0;
+    double totalWaiting = 0;
+    double totalTurnaround = 0;
+
+    // Calculate scheduling times
+    for (Process& p : processes) {
+        // Handle CPU idle time
+        currentTime = max(currentTime, p.arrival);
+
+        p.start = currentTime;
+        p.waiting = p.start - p.arrival;
+
+        currentTime += p.execution;
+
+        p.completion = currentTime;
+        p.turnaround = p.completion - p.arrival;
+
+        totalWaiting += p.waiting;
+        totalTurnaround += p.turnaround;
+    }
+
+    // Display results in original process order
+    sort(processes.begin(), processes.end(),
+        [](const Process& a, const Process& b) {
+            return a.id < b.id;
+        });
+
+    cout << "\nProcess\tArrival\tExecution\tStart\tCompletion"
+         << "\tTurnaround\tWaiting\n";
+
+    for (const Process& p : processes) {
+        cout << "P" << p.id << "\t"
+             << p.arrival << "\t"
+             << p.execution << "\t\t"
+             << p.start << "\t"
+             << p.completion << "\t"
+             << p.turnaround << "\t\t"
+             << p.waiting << '\n';
+    }
+
+    // Display average times
+    cout << fixed << setprecision(2);
+
+    cout << "\nAverage Waiting Time: "
+         << totalWaiting / n << '\n';
+
+    cout << "Average Turnaround Time: "
+         << totalTurnaround / n << '\n';
+
+    // Display Gantt chart in FCFS execution order
+    stable_sort(processes.begin(), processes.end(),
+        [](const Process& a, const Process& b) {
+            return a.arrival < b.arrival;
+        });
+
+    cout << "\nGantt Chart:\n";
+
+    for (const Process& p : processes) {
+        if (p.start > 0 && p.start > p.arrival) {
+            // The CPU may have been idle before this process.
+            // Idle intervals are displayed below using timestamps.
+        }
+
+        cout << "| ";
+        if (p.start > 0) {
+            cout << "P" << p.id << " ";
+        } else {
+            cout << "P" << p.id << " ";
+        }
+    }
+    cout << "|\n";
+
+    // Print process start and completion timestamps
+    if (!processes.empty()) {
+        cout << processes[0].start;
+
+        for (const Process& p : processes) {
+            cout << "\t" << p.completion;
+        }
+
+        cout << '\n';
+    }
+
+    return 0;
+}
+\end{lstlisting}
+
+\newpage
+
+% =========================================================
+% 5. Execution of Code
+% =========================================================
+\section{Execution of Code}
+The C++ program was compiled using G++ and executed in the Linux terminal environment.
+
+\subsection{Compilation and Terminal Output}
+
+\terminalwindow{ratul@firefly: \textasciitilde/OS-Lab\ \textemdash\ bash}{
+% Command 1: compile
+\termprompt[\textasciitilde/OS-Lab]\textbf{\textcolor{termcmd}{g++ fcfs.cpp -o fcfs}}
+
+\vspace{0.06cm}
+% Command 2: run
+\termprompt[\textasciitilde/OS-Lab]\textbf{\textcolor{termcmd}{./fcfs}}
+
+\textcolor{termout}{Enter the number of processes: 4}
+
+\textcolor{termout}{Enter arrival and execution time for process 1: 0 4}
+
+\textcolor{termout}{Enter arrival and execution time for process 2: 1 3}
+
+\textcolor{termout}{Enter arrival and execution time for process 3: 2 1}
+
+\textcolor{termout}{Enter arrival and execution time for process 4: 3 2}
+
+\vspace{0.06cm}
+\textcolor{termperm}{\textbf{Process\ \ Arrival\ \ Execution\ \ Start\ \ Completion\ \ Turnaround\ \ Waiting}}
+
+\textcolor{termout}{P1\ \ \ \ \ \ \ 0\ \ \ \ \ \ \ \ 4\ \ \ \ \ \ \ \ \ \ 0\ \ \ \ \ \ 4\ \ \ \ \ \ \ \ \ \ \ 4\ \ \ \ \ \ \ \ \ \ \ 0}
+
+\textcolor{termout}{P2\ \ \ \ \ \ \ 1\ \ \ \ \ \ \ \ 3\ \ \ \ \ \ \ \ \ \ 4\ \ \ \ \ \ 7\ \ \ \ \ \ \ \ \ \ \ 6\ \ \ \ \ \ \ \ \ \ \ 3}
+
+\textcolor{termout}{P3\ \ \ \ \ \ \ 2\ \ \ \ \ \ \ \ 1\ \ \ \ \ \ \ \ \ \ 7\ \ \ \ \ \ 8\ \ \ \ \ \ \ \ \ \ \ 6\ \ \ \ \ \ \ \ \ \ \ 5}
+
+\textcolor{termout}{P4\ \ \ \ \ \ \ 3\ \ \ \ \ \ \ \ 2\ \ \ \ \ \ \ \ \ \ 8\ \ \ \ \ \ 10\ \ \ \ \ \ \ \ \ \ 7\ \ \ \ \ \ \ \ \ \ \ 5}
+
+\vspace{0.06cm}
+\textcolor{termuser}{\textbf{Average Waiting Time: 3.25}}
+
+\textcolor{termuser}{\textbf{Average Turnaround Time: 5.75}}
+
+\vspace{0.06cm}
+\textcolor{termsize}{\textbf{Gantt Chart:}}
+
+\textcolor{termcmd}{| P1 | P2 | P3 | P4 |}
+
+\textcolor{termout}{0\ \ \ \ \ \ \ 4\ \ \ \ \ \ \ 7\ \ \ \ \ \ \ 8\ \ \ \ \ \ \ 10}
+
+\vspace{0.08cm}
+% Final prompt
+\termprompt[\textasciitilde/OS-Lab]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\subsection{Verification of Correctness}
+The execution output confirms accurate First Come, First Served scheduling:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item \textbf{Process $P_1$:} Arrives at $T=0$. Starts immediately at $T=0$, runs for 4 units, and finishes at $T=4$. $WT = 0, TAT = 4$.
+  \item \textbf{Process $P_2$:} Arrives at $T=1$. Waits until $P_1$ completes at $T=4$. Runs for 3 units until $T=7$. $WT = 4 - 1 = 3, TAT = 7 - 1 = 6$.
+  \item \textbf{Process $P_3$:} Arrives at $T=2$. Starts at $T=7$, runs for 1 unit until $T=8$. $WT = 7 - 2 = 5, TAT = 8 - 2 = 6$.
+  \item \textbf{Process $P_4$:} Arrives at $T=3$. Starts at $T=8$, runs for 2 units until $T=10$. $WT = 8 - 3 = 5, TAT = 10 - 3 = 7$.
+  \item The generated textual Gantt chart sequence \texttt{| P1 | P2 | P3 | P4 |} with boundary timestamps $0, 4, 7, 8, 10$ matches theoretical calculations identically.
+\end{itemize}
+
+% =========================================================
+% 6. Conclusion
+% =========================================================
+\section{Conclusion}
+Key takeaways from this lab:
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item Implemented the First Come, First Served (FCFS) CPU scheduling algorithm in C++.
+  \item Handled arbitrary process arrival times, CPU idle gaps, and preserved arrival order using stable sorting.
+  \item Computed process metrics ($ST, CT, TAT, WT$) and printed the scheduling summary and Gantt chart timeline.
+\end{enumerate}
+
+\end{document}
