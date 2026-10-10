@@ -1,0 +1,18 @@
+LAB REPORT GUIDELINES FOR CODING PARTS
+
+Each lab report should be prepared in a clear, organized manner following the sequence below for every problem or experiment:
+
+1. Problem
+Clearly state the problem assigned in the lab. Mention what needs to be solved or implemented. The statement should be concise and should reflect the main objective of the task.
+
+2. Theoretical Solution
+Provide the theoretical explanation or algorithmic approach to solve the problem. This section should include a brief description of the logic, relevant formulas, flowcharts, or diagrams that explain how the problem will be approached before writing the code.
+
+3. Expected Input/Output (I/O) Set
+List the expected inputs and corresponding outputs of the program. Specify what type of data the program will take as input and what kind of result or output is expected. You may use a table for clarity.
+
+4. Source Code
+Include the complete source code used to solve the problem. The code must be properly indented, formatted, and commented for readability. Ensure that the code reflects the theoretical solution discussed earlier.
+
+5. Execution of Code
+Attach the program’s execution result or output. Provide screenshots or clearly written outputs showing that the program runs successfully. Briefly describe how the output verifies the correctness of your solution.
