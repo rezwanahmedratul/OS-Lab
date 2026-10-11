@@ -180,121 +180,37 @@
 % 1. Problem
 % =========================================================
 \section{Problem}
-In operating systems, process scheduling decides the order of process execution on the CPU. The objective of this lab is to implement the \textbf{First Come, First Served (FCFS)} CPU scheduling algorithm in C++.
-
-The program must:
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Take the number of processes ($n$), arrival time ($AT$), and execution/burst time ($BT$) for each process.
-  \item Validate input data (positive count, non-negative arrival time, and positive execution time).
-  \item Schedule processes strictly in order of their arrival time using stable sorting.
-  \item Compute Start Time ($ST$), Completion Time ($CT$), Turnaround Time ($TAT$), and Waiting Time ($WT$).
-  \item Calculate and display Average Waiting Time and Average Turnaround Time.
-  \item Display the execution schedule table and text-based Gantt chart timeline.
-\end{itemize}
-
-\subsection{Environment \& Tools}
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.06}
-\begin{tabularx}{\linewidth}{lXlX}
-\toprule
-\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
-\midrule
-\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
-\textbf{User Account} & \texttt{ratul} & \textbf{Language \& Standard} & C++ (GNU C++17) \\
-\textbf{Compiler} & GCC / G++ (\cmd{g++ 13.x}) & \textbf{Execution Shell} & GNU Bash 5.2 \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-6pt}
+Implement the non-preemptive First Come, First Served (FCFS) CPU scheduling algorithm in C++. Given the number of processes, arrival times ($AT$), and execution/burst times ($BT$), schedule the processes strictly by arrival order, handle CPU idle time, and compute Completion Time ($CT$), Turnaround Time ($TAT$), Waiting Time ($WT$), and average metrics along with a Gantt chart.
 
 % =========================================================
 % 2. Theoretical Solution
 % =========================================================
 \section{Theoretical Solution}
-First Come, First Served (FCFS) is the simplest non-preemptive CPU scheduling algorithm. The process that arrives first in the ready queue is allocated the CPU first.
-
-\subsection{Key Principles}
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{FIFO Queue Discipline:} Processes are serviced strictly in arrival sequence.
-  \item \textbf{Non-Preemptive Execution:} Once a process gets the CPU, it runs to completion without interruption.
-  \item \textbf{Tie-Breaking:} When arrival times match, input order is maintained via stable sorting.
-  \item \textbf{CPU Idle Handling:} If the CPU finishes before the next process arrives, current time jumps forward: $ST_i = \max(currentTime, AT_i)$.
-\end{itemize}
+FCFS allocates the CPU to processes strictly in their order of arrival. Execution is non-preemptive: once a process gains the CPU, it runs to completion. If the CPU is idle when a process arrives, its start time equals its arrival time ($ST_i = \max(currentTime, AT_i)$).
 
 \subsection{Formulas}
-For each process $i$, scheduling metrics are computed as follows:
+For each process $i$:
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{Start Time ($ST$):} $ST_i = \max(currentTime, AT_i)$
-  \item \textbf{Completion Time ($CT$):} $CT_i = ST_i + BT_i$
-  \item \textbf{Turnaround Time ($TAT$):} $TAT_i = CT_i - AT_i$
-  \item \textbf{Waiting Time ($WT$):} $WT_i = ST_i - AT_i = TAT_i - BT_i$
-  \item \textbf{Average Turnaround Time ($Avg\_TAT$):} $\frac{1}{n} \sum_{i=1}^{n} TAT_i$
-  \item \textbf{Average Waiting Time ($Avg\_WT$):} $\frac{1}{n} \sum_{i=1}^{n} WT_i$
+  \item $CT_i = ST_i + BT_i$
+  \item $TAT_i = CT_i - AT_i$
+  \item $WT_i = TAT_i - BT_i$
+  \item $Avg\_TAT = \frac{1}{n} \sum TAT_i, \quad Avg\_WT = \frac{1}{n} \sum WT_i$
 \end{itemize}
 
-\subsection{Gantt Chart Representation}
-Figure 1 illustrates the non-preemptive FCFS timeline for 4 processes ($P_1$: $AT=0, BT=4$; $P_2$: $AT=1, BT=3$; $P_3$: $AT=2, BT=1$; $P_4$: $AT=3, BT=2$):
-
-\begin{center}
-\vspace{-4pt}
-\begin{tikzpicture}[x=1.1cm, y=0.72cm]
-  % P1
-  \fill[primary!18] (0,0) rectangle (4,0.85);
-  \draw[primary!80, line width=0.8pt] (0,0) rectangle (4,0.85);
-  \node at (2, 0.42) {\bfseries\small P1};
-
-  % P2
-  \fill[secondary!25] (4,0) rectangle (7,0.85);
-  \draw[secondary!90, line width=0.8pt] (4,0) rectangle (7,0.85);
-  \node at (5.5, 0.42) {\bfseries\small P2};
-
-  % P3
-  \fill[green!60!black!18] (7,0) rectangle (8,0.85);
-  \draw[green!60!black!80, line width=0.8pt] (7,0) rectangle (8,0.85);
-  \node at (7.5, 0.42) {\bfseries\footnotesize P3};
-
-  % P4
-  \fill[purple!18] (8,0) rectangle (10,0.85);
-  \draw[purple!80, line width=0.8pt] (8,0) rectangle (10,0.85);
-  \node at (9, 0.42) {\bfseries\small P4};
-
-  % Time markers
-  \foreach \x in {0, 4, 7, 8, 10} {
-    \draw[darkslate, line width=0.7pt] (\x, 0) -- (\x, -0.15);
-    \node[below, font=\scriptsize\sffamily] at (\x, -0.15) {\x};
-  }
-\end{tikzpicture}
-\vspace{-4pt}
-\end{center}
-\centerline{\footnotesize\textbf{Figure 1:} Gantt Chart of Non-Preemptive FCFS Execution.}
-\vspace{2pt}
-
-\subsection{Algorithmic Approach}
+\subsection{Algorithmic Steps}
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Read process count $n$ and validate that $n > 0$.
-  \item Read arrival ($AT$) and execution ($BT$) times; validate $AT \ge 0$ and $BT > 0$.
-  \item Sort processes in ascending order of arrival time using \cmd{std::stable\_sort}.
-  \item For each process $i$: update $currentTime = \max(currentTime, AT_i)$, set $start = currentTime$, compute $waiting = start - AT_i$, advance $currentTime = currentTime + BT_i$, and record $completion = currentTime$ and $turnaround = completion - AT_i$.
-  \item Sort back by process ID, print results table, display averages, and output Gantt chart.
+  \item Read process count $n$, arrival times $AT$, and burst times $BT$.
+  \item Sort processes by arrival time using stable sort.
+  \item For each process, update $currentTime = \max(currentTime, AT_i)$, then compute $CT_i$, $TAT_i$, and $WT_i$.
+  \item Display the schedule table, average metrics, and Gantt chart sequence.
 \end{enumerate}
-
-\newpage
 
 % =========================================================
 % 3. Expected Input/Output (I/O) Set
 % =========================================================
 \section{Expected Input/Output (I/O) Set}
-The input consists of integer counts, arrival times, and execution times. The output displays the detailed schedule, averages, and the Gantt chart sequence.
+Expected input and scheduling results for $n = 4$ processes:
 
-\subsection{Input Specification}
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Total processes: $n = 4$
-  \item Input pairs: Process ID, Arrival Time ($AT$), Execution Time ($BT$).
-\end{itemize}
-
-\subsection{Tabular Input and Expected Output}
 \vspace{-2pt}
 \begin{table}[h!]
 \centering\footnotesize
@@ -312,20 +228,13 @@ The input consists of integer counts, arrival times, and execution times. The ou
 \end{table}
 \vspace{-6pt}
 
-\subsection{Expected Summary Metrics}
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{Total Waiting Time:} $0 + 3 + 5 + 5 = 13$
-  \item \textbf{Total Turnaround Time:} $4 + 6 + 6 + 7 = 23$
-  \item \textbf{Average Waiting Time:} $13 / 4 = 3.25$
-  \item \textbf{Average Turnaround Time:} $23 / 4 = 5.75$
-  \item \textbf{Gantt Chart Sequence:} \texttt{| P1 | P2 | P3 | P4 |} with time points $0, 4, 7, 8, 10$.
-\end{itemize}
+\noindent\textbf{Expected Averages:} Average Waiting Time = $3.25$, Average Turnaround Time = $5.75$.
 
 % =========================================================
 % 4. Source Code
 % =========================================================
 \section{Source Code}
-The complete C++ implementation of the First Come, First Served CPU scheduling algorithm is given below:
+Complete C++ implementation of the First Come, First Served scheduling algorithm:
 
 \begin{lstlisting}
 #include <bits/stdc++.h>
@@ -466,15 +375,11 @@ int main() {
 }
 \end{lstlisting}
 
-\newpage
-
 % =========================================================
 % 5. Execution of Code
 % =========================================================
 \section{Execution of Code}
-The C++ program was compiled using G++ and executed in the Linux terminal environment.
-
-\subsection{Compilation and Terminal Output}
+The program was compiled with \cmd{g++} and executed in Linux terminal:
 
 \terminalwindow{ratul@firefly: \textasciitilde/OS-Lab\ \textemdash\ bash}{
 % Command 1: compile
@@ -522,25 +427,6 @@ The C++ program was compiled using G++ and executed in the Linux terminal enviro
 \termprompt[\textasciitilde/OS-Lab]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
 }
 
-\subsection{Verification of Correctness}
-The execution output confirms accurate First Come, First Served scheduling:
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{Process $P_1$:} Arrives at $T=0$. Starts immediately at $T=0$, runs for 4 units, and finishes at $T=4$. $WT = 0, TAT = 4$.
-  \item \textbf{Process $P_2$:} Arrives at $T=1$. Waits until $P_1$ completes at $T=4$. Runs for 3 units until $T=7$. $WT = 4 - 1 = 3, TAT = 7 - 1 = 6$.
-  \item \textbf{Process $P_3$:} Arrives at $T=2$. Starts at $T=7$, runs for 1 unit until $T=8$. $WT = 7 - 2 = 5, TAT = 8 - 2 = 6$.
-  \item \textbf{Process $P_4$:} Arrives at $T=3$. Starts at $T=8$, runs for 2 units until $T=10$. $WT = 8 - 3 = 5, TAT = 10 - 3 = 7$.
-  \item The generated textual Gantt chart sequence \texttt{| P1 | P2 | P3 | P4 |} with boundary timestamps $0, 4, 7, 8, 10$ matches theoretical calculations identically.
-\end{itemize}
-
-% =========================================================
-% 6. Conclusion
-% =========================================================
-\section{Conclusion}
-Key takeaways from this lab:
-\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Implemented the First Come, First Served (FCFS) CPU scheduling algorithm in C++.
-  \item Handled arbitrary process arrival times, CPU idle gaps, and preserved arrival order using stable sorting.
-  \item Computed process metrics ($ST, CT, TAT, WT$) and printed the scheduling summary and Gantt chart timeline.
-\end{enumerate}
+\vspace{4pt}\noindent\textbf{Verification:}\ The execution output matches the expected completion times, turnaround times, waiting times, and Gantt chart sequence, confirming correct non-preemptive FCFS scheduling.
 
 \end{document}

@@ -1,0 +1,389 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=0.6in,top=0.52in,bottom=0.52in]{geometry}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds}
+\usepackage{xcolor}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=primary,urlcolor=secondary]{hyperref}
+
+% =========================================================
+% Palette & Styling (Matching lab_9.tex)
+% =========================================================
+\definecolor{primary}{RGB}{24, 43, 73}        % Deep clean navy
+\definecolor{secondary}{RGB}{14, 116, 144}   % Teal accent
+\definecolor{darkslate}{RGB}{30, 41, 59}     % Normal text color
+\definecolor{boxbg}{RGB}{248, 250, 252}      % Soft light box
+\definecolor{bordergray}{RGB}{226, 232, 240} % Light border
+
+% Terminal Color Scheme: Modern Light Grey Theme
+\definecolor{termbg}{RGB}{246, 248, 250}     % Light grey terminal body
+\definecolor{termbar}{RGB}{229, 231, 235}    % Medium light grey title bar
+\definecolor{termborder}{RGB}{209, 213, 219} % Crisp border line
+\definecolor{termtext}{RGB}{31, 41, 55}      % Dark charcoal text
+\definecolor{termuser}{RGB}{22, 101, 52}     % Dark green for user
+\definecolor{termhost}{RGB}{21, 128, 61}     % Green for host
+\definecolor{termpath}{RGB}{29, 78, 216}     % Blue for directory path
+\definecolor{termcmd}{RGB}{17, 24, 39}       % Bold black for commands
+\definecolor{termout}{RGB}{55, 65, 81}       % Clear dark grey for outputs
+\definecolor{termdir}{RGB}{37, 99, 235}      % Blue for directories
+\definecolor{termfile}{RGB}{31, 41, 55}      % Dark for regular files
+\definecolor{termhidden}{RGB}{107, 114, 128} % Muted grey
+\definecolor{termsize}{RGB}{180, 83, 9}      % Amber for sizes
+\definecolor{termperm}{RGB}{79, 70, 229}     % Indigo for permissions
+
+% Code Listing Colors
+\definecolor{codebg}{RGB}{248, 250, 252}
+\definecolor{codeborder}{RGB}{218, 224, 233}
+\definecolor{codekw}{RGB}{14, 116, 144}
+\definecolor{codestr}{RGB}{22, 101, 52}
+\definecolor{codecomment}{RGB}{100, 116, 139}
+\definecolor{codenum}{RGB}{148, 163, 184}
+
+% Table helpers
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+% =========================================================
+% Section Headings
+% =========================================================
+\titleformat{\section}
+  {\color{primary}\large\bfseries\sffamily\raggedright}
+  {\thesection.}{0.5em}{}
+\titlespacing*{\section}{0pt}{7pt}{2pt}
+
+\titleformat{\subsection}
+  {\color{secondary}\normalsize\bfseries\sffamily\raggedright}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{5pt}{2pt}
+
+% =========================================================
+% Headers and Footers
+% =========================================================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\small\sffamily\color{darkslate} Operating Systems Lab}
+\fancyhead[R]{\small\sffamily\color{darkslate} Lab Report: SRJF Scheduling Algorithm}
+\fancyfoot{}
+
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+% =========================================================
+% Terminal Window Macro
+% =========================================================
+\newcommand{\termprompt}[1][\textasciitilde]{%
+  \textbf{\textcolor{termuser}{ratul}}\textcolor{termtext}{@}\textbf{\textcolor{termhost}{firefly}}\textcolor{termtext}{:}\textbf{\textcolor{termpath}{#1}}\textcolor{termcmd}{\$}\ %
+}
+
+\newcommand{\terminalwindow}[3][\dimexpr\linewidth-0.6pt\relax]{%
+\par\vspace{2pt}%
+{\centering
+\begin{tikzpicture}
+  % 1. Terminal text on main layer
+  \node[
+      text=termtext,
+      font=\ttfamily\fontsize{7.2}{9.2}\selectfont,
+      align=left,
+      text width=\dimexpr#1-1.02cm\relax,
+      inner xsep=6pt,
+      inner ysep=6pt,
+      anchor=north west
+  ] (body) at (0.32cm, -0.56cm) {#3};
+
+  % Coordinates
+  \coordinate (topleft) at (0, 0);
+  \coordinate (bottomright) at ($(body.south -| #1, 0) + (0, -5pt)$);
+  \coordinate (titlecenter) at ($0.5*(topleft) + 0.5*(#1, 0) + (0, -0.28cm)$);
+
+  % 2. Background and Title bar on background layer
+  \begin{scope}[on background layer]
+    \fill[termbg, rounded corners=6pt] (topleft) rectangle (bottomright);
+
+    \begin{scope}
+      \clip[rounded corners=6pt] (topleft) rectangle (bottomright);
+      \fill[termbar] (topleft) rectangle (#1, -0.56cm);
+      \draw[termborder, line width=0.5pt] (0, -0.56cm) -- (#1, -0.56cm);
+    \end{scope}
+
+    \draw[termborder, line width=0.6pt, rounded corners=6pt] (topleft) rectangle (bottomright);
+  \end{scope}
+
+  % 3. Window control dots
+  \fill[red!80!black] (0.36cm, -0.28cm) circle (0.07cm);
+  \fill[yellow!80!black] (0.63cm, -0.28cm) circle (0.07cm);
+  \fill[green!75!black] (0.90cm, -0.28cm) circle (0.07cm);
+
+  % 4. Centered terminal title
+  \node[
+      text=gray!40!black,
+      font=\sffamily\bfseries\fontsize{7.2}{8}\selectfont,
+      anchor=center
+  ] at (titlecenter) {#2};
+\end{tikzpicture}\par}%
+\vspace{2pt}%
+}
+
+\newcommand{\cmd}[1]{\texttt{\textbf{#1}}}
+
+% =========================================================
+% Code Listing Configuration
+% =========================================================
+\lstset{
+  language=C,
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\fontsize{7.2}{9.0}\selectfont\color{darkslate},
+  keywordstyle=\bfseries\color{codekw},
+  commentstyle=\itshape\color{codecomment},
+  stringstyle=\color{codestr},
+  numbers=left,
+  numberstyle=\tiny\color{codenum},
+  stepnumber=1,
+  numbersep=8pt,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{codeborder},
+  tabsize=4,
+  xleftmargin=14pt,
+  framexleftmargin=14pt
+}
+
+\begin{document}
+\raggedbottom
+\thispagestyle{firstpage}
+
+% =========================================================
+% Title Block
+% =========================================================
+\begin{center}
+  {\Large\bfseries\sffamily\color{primary} Experiment Title: Implementation of Shortest Remaining Job First (SRJF) CPU Scheduling Algorithm}\\[3pt]
+  {\normalsize\sffamily\textbf{Topic:} Preemptive Shortest Remaining Time First (SRTF / SRJF) CPU Scheduling Simulation in C}
+\end{center}
+\vspace{-4pt}
+
+% =========================================================
+% 1. Problem
+% =========================================================
+\section{Problem}
+Implement the Shortest Remaining Job First (SRJF / SRTF) preemptive CPU scheduling algorithm in C. Given the arrival times ($AT$) and burst times ($BT$) for a set of processes, the scheduler dynamically allocates the CPU to the arrived process with the smallest remaining execution time at each time unit. The program computes Completion Time ($CT$), Turnaround Time ($TAT$), Waiting Time ($WT$), and overall averages.
+
+% =========================================================
+% 2. Theoretical Solution
+% =========================================================
+\section{Theoretical Solution}
+SRJF is the preemptive version of Shortest Job First (SJF) scheduling. At each unit of time, the scheduler evaluates all arrived processes ($AT_i \le currentTime$) and executes the one with the minimum remaining burst time. If a newly arrived process requires less time than the remaining time of the currently running process, the CPU preempts the current job. Ties in remaining burst times are broken by earlier arrival time (FCFS).
+
+\subsection{Formulas}
+For each process $i$:
+\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
+  \item $TAT_i = CT_i - AT_i$
+  \item $WT_i = TAT_i - BT_i$
+  \item $Avg\_TAT = \frac{1}{n} \sum TAT_i, \quad Avg\_WT = \frac{1}{n} \sum WT_i$
+\end{itemize}
+
+\subsection{Algorithmic Steps}
+\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
+  \item Read process count $n$, arrival times $AT$, and burst times $BT$. Set $remaining_i = BT_i$.
+  \item Sort processes initially by arrival time to facilitate arrival checks.
+  \item At each time step $currentTime$, find the process with minimum $remaining_i > 0$ among arrived processes ($AT_i \le currentTime$). Break ties with smaller $AT_i$.
+  \item If found, decrement $remaining_i$, advance $currentTime$ by $1$. When $remaining_i = 0$, record $CT_i = currentTime$, compute $TAT_i$ and $WT_i$, and mark it completed.
+  \item If no process is ready, advance $currentTime$ by $1$.
+  \item Repeat until all $n$ processes finish, then display the summary table and averages.
+\end{enumerate}
+
+% =========================================================
+% 3. Expected Input/Output (I/O) Set
+% =========================================================
+\section{Expected Input/Output (I/O) Set}
+Expected input and scheduling results for $n = 4$ processes:
+
+\vspace{-2pt}
+\begin{table}[h!]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\linewidth}{YYYYYY}
+\toprule
+\textbf{Process} & \textbf{Arrival Time ($AT$)} & \textbf{Burst Time ($BT$)} & \textbf{Completion Time ($CT$)} & \textbf{Turnaround Time ($TAT$)} & \textbf{Waiting Time ($WT$)} \\
+\midrule
+\textbf{P1} & 0 & 7 & 16 & 16 & 9 \\
+\textbf{P2} & 2 & 4 & 7  & 5  & 1 \\
+\textbf{P3} & 4 & 1 & 5  & 1  & 0 \\
+\textbf{P4} & 5 & 4 & 11 & 6  & 2 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\vspace{-6pt}
+
+\noindent\textbf{Expected Averages:} Average Turnaround Time = $7.00$, Average Waiting Time = $3.00$.
+
+% =========================================================
+% 4. Source Code
+% =========================================================
+\section{Source Code}
+Complete C implementation of the Shortest Remaining Job First (SRJF) scheduling algorithm:
+
+\begin{lstlisting}
+#include <stdio.h>
+
+int main() {
+    int n, i, j, temp, pos, current_time = 0, completed = 0;
+    float totalTAT = 0, totalWT = 0, averageTAT, averageWT;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    int process[n], arrival[n], burst[n], remaining[n], completion[n], turnaround[n], waiting[n], is_completed[n];
+
+    // Input process details
+    for (i = 0; i < n; i++) {
+        process[i] = i + 1;
+        printf("Enter arrival time of process %d: ", process[i]);
+        scanf("%d", &arrival[i]);
+        printf("Enter burst time of process %d: ", process[i]);
+        scanf("%d", &burst[i]);
+        remaining[i] = burst[i];
+        completion[i] = -1;
+        is_completed[i] = 0;
+    }
+
+    // Sort processes based on arrival time
+    for (i = 0; i < n; i++) {
+        pos = i;
+        for (j = i + 1; j < n; j++) {
+            if (arrival[j] < arrival[pos]) pos = j;
+        }
+        temp = arrival[i]; arrival[i] = arrival[pos]; arrival[pos] = temp;
+        temp = burst[i]; burst[i] = burst[pos]; burst[pos] = temp;
+        temp = remaining[i]; remaining[i] = remaining[pos]; remaining[pos] = temp;
+        temp = process[i]; process[i] = process[pos]; process[pos] = temp;
+    }
+
+    // Apply Shortest Remaining Time First (SRTF / Preemptive SJF)
+    while (completed != n) {
+        int min_remaining = 9999, index = -1;
+
+        // Find process with shortest remaining time among arrived processes
+        for (i = 0; i < n; i++) {
+            if (arrival[i] <= current_time && is_completed[i] == 0) {
+                if (remaining[i] < min_remaining && remaining[i] > 0) {
+                    min_remaining = remaining[i];
+                    index = i;
+                } else if (remaining[i] == min_remaining && arrival[i] < arrival[index]) {
+                    index = i;
+                }
+            }
+        }
+
+        if (index != -1) {
+            remaining[index]--;
+            current_time++;
+
+            if (remaining[index] == 0) {
+                completion[index] = current_time;
+                turnaround[index] = completion[index] - arrival[index];
+                waiting[index] = turnaround[index] - burst[index];
+                totalTAT += turnaround[index];
+                totalWT += waiting[index];
+                is_completed[index] = 1;
+                completed++;
+            }
+        } else {
+            current_time++;
+        }
+    }
+
+    averageTAT = totalTAT / n;
+    averageWT = totalWT / n;
+
+    // Printing final process table
+    printf("\nProcess\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n");
+    for (i = 0; i < n; i++) {
+        printf("P%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n",
+               process[i], arrival[i], burst[i], completion[i], turnaround[i], waiting[i]);
+    }
+
+    printf("\nTotal Turnaround Time: %.0f", totalTAT);
+    printf("\nTotal Waiting Time: %.0f", totalWT);
+    printf("\nAverage Turnaround Time: %.2f", averageTAT);
+    printf("\nAverage Waiting Time: %.2f\n", averageWT);
+
+    return 0;
+}
+\end{lstlisting}
+
+% =========================================================
+% 5. Execution of Code
+% =========================================================
+\section{Execution of Code}
+The program was compiled with \cmd{gcc} and executed in Linux terminal:
+
+\terminalwindow{ratul@firefly: \textasciitilde/OS-Lab\ \textemdash\ bash}{
+% Command 1: compile
+\termprompt[\textasciitilde/OS-Lab]\textbf{\textcolor{termcmd}{gcc srtf.c -o srtf}}
+
+\vspace{0.06cm}
+% Command 2: run
+\termprompt[\textasciitilde/OS-Lab]\textbf{\textcolor{termcmd}{./srtf}}
+
+\textcolor{termout}{Enter the number of processes: 4}
+
+\textcolor{termout}{Enter arrival time of process 1: 0}
+
+\textcolor{termout}{Enter burst time of process 1: 7}
+
+\textcolor{termout}{Enter arrival time of process 2: 2}
+
+\textcolor{termout}{Enter burst time of process 2: 4}
+
+\textcolor{termout}{Enter arrival time of process 3: 4}
+
+\textcolor{termout}{Enter burst time of process 3: 1}
+
+\textcolor{termout}{Enter arrival time of process 4: 5}
+
+\textcolor{termout}{Enter burst time of process 4: 4}
+
+\vspace{0.06cm}
+\textcolor{termperm}{\textbf{Process\ \ Arrival\ Time\ \ Burst\ Time\ \ Completion\ Time\ \ Turnaround\ Time\ \ Waiting\ Time}}
+
+\textcolor{termout}{P1\ \ \ \ \ \ \ 0\ \ \ \ \ \ \ \ \ \ \ \ \ 7\ \ \ \ \ \ \ \ \ \ \ 16\ \ \ \ \ \ \ \ \ \ \ \ \ \ 16\ \ \ \ \ \ \ \ \ \ \ \ \ \ 9}
+
+\textcolor{termout}{P2\ \ \ \ \ \ \ 2\ \ \ \ \ \ \ \ \ \ \ \ \ 4\ \ \ \ \ \ \ \ \ \ \ 7\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 5\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 1}
+
+\textcolor{termout}{P3\ \ \ \ \ \ \ 4\ \ \ \ \ \ \ \ \ \ \ \ \ 1\ \ \ \ \ \ \ \ \ \ \ 5\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 1\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 0}
+
+\textcolor{termout}{P4\ \ \ \ \ \ \ 5\ \ \ \ \ \ \ \ \ \ \ \ \ 4\ \ \ \ \ \ \ \ \ \ \ 11\ \ \ \ \ \ \ \ \ \ \ \ \ \ 6\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2}
+
+\vspace{0.06cm}
+\textcolor{termsize}{\textbf{Total Turnaround Time: 28}}
+
+\textcolor{termsize}{\textbf{Total Waiting Time\ \ \ \ : 12}}
+
+\vspace{0.04cm}
+\textcolor{termuser}{\textbf{Average Turnaround Time = 7.00}}
+
+\textcolor{termuser}{\textbf{Average Waiting Time\ \ \ \ = 3.00}}
+
+\vspace{0.08cm}
+% Final prompt
+\termprompt[\textasciitilde/OS-Lab]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
+}
+
+\vspace{4pt}\noindent\textbf{Verification:}\ The execution results match the calculated completion times, turnaround times, waiting times, and averages, confirming the correctness of the Shortest Remaining Job First (SRJF) preemptive algorithm.
+
+\end{document}

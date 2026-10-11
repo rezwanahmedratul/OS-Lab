@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[a4paper,margin=0.6in,top=0.52in,bottom=0.52in]{geometry}
+\usepackage{amsmath}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds}
 \usepackage{xcolor}
@@ -179,125 +180,38 @@
 % 1. Problem
 % =========================================================
 \section{Problem}
-In multi-programmed operating systems, CPU scheduling determines the order in which processes execute. The objective of this lab is to implement the \textbf{Shortest Job First (SJF) Non-Preemptive} CPU scheduling algorithm in C.
-
-The program must:
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Accept the total number of processes ($n$), arrival time ($AT$), and burst time ($BT$) for each process.
-  \item Schedule processes based on the shortest burst time among available processes.
-  \item Handle different arrival times and break burst-time ties using first-come, first-served (FCFS) order.
-  \item Compute Completion Time ($CT$), Turnaround Time ($TAT$), and Waiting Time ($WT$) for every process.
-  \item Display the tabular summary, Total Turnaround Time, Total Waiting Time, Average $TAT$, and Average $WT$.
-\end{itemize}
-
-\subsection{Environment \& Tools}
-\vspace{-2pt}
-\begin{table}[h!]
-\centering\footnotesize
-\renewcommand{\arraystretch}{1.06}
-\begin{tabularx}{\linewidth}{lXlX}
-\toprule
-\textbf{Item} & \textbf{Details} & \textbf{Item} & \textbf{Details} \\
-\midrule
-\textbf{Operating System} & Linux (Ubuntu 24.04 LTS) & \textbf{Host Machine} & \texttt{firefly} \\
-\textbf{User Account} & \texttt{ratul} & \textbf{Language \& Standard} & C (GNU C99) \\
-\textbf{Compiler} & GCC (\cmd{gcc 13.x}) & \textbf{Execution Shell} & GNU Bash 5.2 \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\vspace{-6pt}
+Implement the Shortest Job First (SJF) non-preemptive CPU scheduling algorithm in C. Given the arrival times ($AT$) and burst times ($BT$) for a set of processes, schedule the arrived process with the shortest burst time, break ties using FCFS order, handle CPU idle time, and compute Completion Time ($CT$), Turnaround Time ($TAT$), Waiting Time ($WT$), and average metrics.
 
 % =========================================================
 % 2. Theoretical Solution
 % =========================================================
 \section{Theoretical Solution}
-Shortest Job First (SJF) non-preemptive scheduling selects the process with the smallest execution (burst) time from the ready queue once the CPU becomes free.
-
-\subsection{Key Principles}
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{Non-Preemptive Nature:} Once the CPU is allocated to a process, it cannot be interrupted until it finishes its entire burst time.
-  \item \textbf{Ready Queue Eligibility:} A process $i$ can only be chosen at time $T$ if it has already arrived ($AT_i \le T$).
-  \item \textbf{Tie Breaking:} If two ready processes have the same burst time, the one with earlier arrival time is executed first.
-  \item \textbf{CPU Idle State:} If no process is ready at the current time, the system advances time until a process arrives.
-\end{itemize}
+SJF non-preemptive scheduling selects the ready process ($AT_i \le currentTime$) with the minimum burst time. Once scheduled, it runs to completion without preemption. Equal burst times are broken by arrival order. If no process is ready, the CPU remains idle until the next arrival.
 
 \subsection{Formulas}
-For each process $i$, performance metrics are calculated using standard formulas:
+For each process $i$:
 \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{Turnaround Time ($TAT$):} Total time taken from arrival to completion:
-  \[ TAT_i = CT_i - AT_i \]
-  \item \textbf{Waiting Time ($WT$):} Total time spent waiting in the ready queue:
-  \[ WT_i = TAT_i - BT_i \]
-  \item \textbf{Average Turnaround Time ($Avg\_TAT$):} $\frac{\sum_{i=1}^{n} TAT_i}{n}$
-  \item \textbf{Average Waiting Time ($Avg\_WT$):} $\frac{\sum_{i=1}^{n} WT_i}{n}$
+  \item $CT_i = ST_i + BT_i$
+  \item $TAT_i = CT_i - AT_i$
+  \item $WT_i = TAT_i - BT_i$
+  \item $Avg\_TAT = \frac{1}{n} \sum TAT_i, \quad Avg\_WT = \frac{1}{n} \sum WT_i$
 \end{itemize}
 
-\subsection{Gantt Chart Representation}
-Figure 1 illustrates the non-preemptive timeline for 4 processes ($P_1$: $AT=0, BT=7$; $P_2$: $AT=2, BT=4$; $P_3$: $AT=4, BT=1$; $P_4$: $AT=5, BT=4$):
-
-\begin{center}
-\begin{tikzpicture}[x=0.72cm, y=0.75cm]
-  % P1
-  \fill[primary!18] (0,0) rectangle (7,0.9);
-  \draw[primary!80, line width=0.8pt] (0,0) rectangle (7,0.9);
-  \node at (3.5, 0.45) {\bfseries\small P1};
-
-  % P3
-  \fill[secondary!25] (7,0) rectangle (8,0.9);
-  \draw[secondary!90, line width=0.8pt] (7,0) rectangle (8,0.9);
-  \node at (7.5, 0.45) {\bfseries\footnotesize P3};
-
-  % P2
-  \fill[green!60!black!18] (8,0) rectangle (12,0.9);
-  \draw[green!60!black!80, line width=0.8pt] (8,0) rectangle (12,0.9);
-  \node at (10, 0.45) {\bfseries\small P2};
-
-  % P4
-  \fill[purple!18] (12,0) rectangle (16,0.9);
-  \draw[purple!80, line width=0.8pt] (12,0) rectangle (16,0.9);
-  \node at (14, 0.45) {\bfseries\small P4};
-
-  % Time markers
-  \foreach \x in {0, 7, 8, 12, 16} {
-    \draw[darkslate, line width=0.7pt] (\x, 0) -- (\x, -0.15);
-    \node[below, font=\scriptsize\sffamily] at (\x, -0.15) {\x};
-  }
-\end{tikzpicture}
-\vspace{-4pt}
-\end{center}
-\centerline{\footnotesize\textbf{Figure 1:} Gantt Chart of Non-Preemptive SJF Execution.}
-\vspace{4pt}
-
-\subsection{Algorithmic Approach}
+\subsection{Algorithmic Steps}
 \begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Read process count $n$, arrival times $arrival[i]$, and burst times $burst[i]$.
-  \item Sort processes in ascending order of arrival time using selection sort.
-  \item Initialize $current\_time = 0$ and $completed = 0$.
-  \item Repeat while $completed < n$:
-  \begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.0em]
-    \item Scan all uncompleted processes where $arrival[i] \le current\_time$.
-    \item Select the one with the smallest $burst[i]$. If tied, select the smaller $arrival[i]$.
-    \item If a process is found: $CT = current\_time + burst$, $TAT = CT - arrival$, $WT = TAT - burst$. Mark process complete, advance $current\_time = CT$, increment $completed$.
-    \item If no process has arrived yet: advance $current\_time$ by 1 unit.
-  \end{itemize}
-  \item Compute average turnaround time and average waiting time.
+  \item Read process count $n$, arrival times $AT$, and burst times $BT$. Sort initially by arrival time.
+  \item From uncompleted processes with $AT_i \le currentTime$, select the one with minimum $BT$ (tie-break with smaller $AT$).
+  \item Advance $currentTime$ by its burst time, calculate $CT$, $TAT$, $WT$, and mark it completed.
+  \item If no process is arrived, increment $currentTime$ by $1$.
+  \item Repeat until all processes finish, then display results and averages.
 \end{enumerate}
-
-\newpage
 
 % =========================================================
 % 3. Expected Input/Output (I/O) Set
 % =========================================================
 \section{Expected Input/Output (I/O) Set}
-The input consists of integer counts and positive values for arrival and burst times. The output provides the detailed schedule metrics and overall averages.
+Expected input and scheduling results for $n = 4$ processes:
 
-\subsection{Input Specification}
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item Total processes: $n = 4$
-  \item Inputs per process: Process ID, Arrival Time ($AT$), Burst Time ($BT$).
-\end{itemize}
-
-\subsection{Tabular Input and Expected Output}
 \vspace{-2pt}
 \begin{table}[h!]
 \centering\footnotesize
@@ -315,19 +229,13 @@ The input consists of integer counts and positive values for arrival and burst t
 \end{table}
 \vspace{-6pt}
 
-\subsection{Expected Summary Metrics}
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{Total Turnaround Time:} $7 + 10 + 4 + 11 = 32$
-  \item \textbf{Total Waiting Time:} $0 + 6 + 3 + 7 = 16$
-  \item \textbf{Average Turnaround Time:} $32 / 4 = 8.00$
-  \item \textbf{Average Waiting Time:} $16 / 4 = 4.00$
-\end{itemize}
+\noindent\textbf{Expected Averages:} Average Turnaround Time = $8.00$, Average Waiting Time = $4.00$.
 
 % =========================================================
 % 4. Source Code
 % =========================================================
 \section{Source Code}
-The complete C implementation of the Non-Preemptive SJF scheduling algorithm is given below:
+Complete C implementation of the Non-Preemptive SJF scheduling algorithm:
 
 \begin{lstlisting}
 #include <stdio.h>
@@ -467,15 +375,11 @@ int main() {
 }
 \end{lstlisting}
 
-\newpage
-
 % =========================================================
 % 5. Execution of Code
 % =========================================================
 \section{Execution of Code}
-The C program was compiled with GCC and executed in the Linux terminal environment.
-
-\subsection{Compilation and Terminal Output}
+The program was compiled with \cmd{gcc} and executed in Linux terminal:
 
 \terminalwindow{ratul@firefly: \textasciitilde/OS-Lab\ \textemdash\ bash}{
 % Command 1: compile
@@ -529,25 +433,6 @@ The C program was compiled with GCC and executed in the Linux terminal environme
 \termprompt[\textasciitilde/OS-Lab]\textbf{\textcolor{termcmd}{\rule{0pt}{0.9em}\textunderscore}}
 }
 
-\subsection{Verification of Correctness}
-The execution results match theoretical calculations:
-\begin{itemize}[noitemsep,topsep=1pt,leftmargin=1.2em]
-  \item \textbf{At $T=0$:} $P_1$ is the only arrived process. It runs for 7 units until $T=7$.
-  \item \textbf{At $T=7$:} Processes $P_2$ ($BT=4$), $P_3$ ($BT=1$), and $P_4$ ($BT=4$) are available. $P_3$ has the shortest burst ($1$) and executes next until $T=8$.
-  \item \textbf{At $T=8$:} $P_2$ and $P_4$ both have $BT=4$. $P_2$ arrived earlier ($AT=2 < 5$), so it gets the CPU and finishes at $T=12$.
-  \item \textbf{At $T=12$:} $P_4$ runs and finishes at $T=16$.
-  \item All completion times, turnaround times, waiting times, and averages match the expected values exactly.
-\end{itemize}
-
-% =========================================================
-% 6. Conclusion
-% =========================================================
-\section{Conclusion}
-Key takeaways from this lab:
-\begin{enumerate}[noitemsep,topsep=1pt,leftmargin=1.4em]
-  \item Implemented the Shortest Job First (SJF) Non-Preemptive scheduling algorithm in C.
-  \item Managed dynamic arrival times and implemented FCFS tie-breaking for equal burst times.
-  \item Verified accurate computation of Turnaround Time, Waiting Time, and their system averages against theoretical models.
-\end{enumerate}
+\vspace{4pt}\noindent\textbf{Verification:}\ The terminal execution results match the calculated completion times, turnaround times, waiting times, and averages, confirming the correctness of the SJF non-preemptive algorithm.
 
 \end{document}
